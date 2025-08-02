@@ -1,0 +1,87 @@
+# Setup paths
+$scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+$ompBaseDir = Join-Path $scriptDir "oh-my-posh"
+$themesDir = Join-Path $ompBaseDir "themes"
+$countLog = Join-Path $ompBaseDir "theme-count.log"
+$logFile = Join-Path $ompBaseDir "update.log"
+
+# Create directories
+if (-not (Test-Path $ompBaseDir)) {
+    New-Item -ItemType Directory -Path $ompBaseDir -Force | Out-Null
+}
+New-Item -ItemType Directory -Path $themesDir -Force | Out-Null
+
+# GitHub API for themes
+$themesApi = "https://api.github.com/repos/JanDeDobbeleer/oh-my-posh/contents/themes"
+$response = Invoke-RestMethod -Uri $themesApi -Headers @{ "User-Agent" = "PowerShell" }
+
+# Filter valid .omp.json files
+$themeFiles = $response | Where-Object { $_.name -like "*.omp.json" }
+$currentCount = $themeFiles.Count
+$now = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+
+# Load previous count (if exists)
+$previousCount = if (Test-Path $countLog) {
+    Get-Content $countLog | Select-Object -First 1
+} else {
+    "0"
+}
+
+# Check if update is needed
+if ([int]$previousCount -eq $currentCount) {
+    $msg = "$now - No new themes. Total count: $currentCount. Skipped download."
+    Write-Host $msg -ForegroundColor Yellow
+    Add-Content -Path $logFile -Value $msg
+    return
+}
+
+# Download themes with progress
+$total = $themeFiles.Count
+$padLength = ($themeFiles | ForEach-Object { $_.name.Length } | Measure-Object -Maximum).Maximum
+
+for ($i = 0; $i -lt $total; $i++) {
+    $file = $themeFiles[$i]
+    $name = $file.name.PadRight($padLength)
+    $themePath = Join-Path $themesDir $file.name
+    $completion = [int](($i / $total) * 100)
+    $status = "$name - $completion%"
+
+    Write-Progress -Activity "Downloading Oh My Posh Themes" `
+                   -Status $status `
+                   -PercentComplete (($i / $total) * 100)
+
+    Invoke-WebRequest -Uri $file.download_url `
+                      -OutFile $themePath `
+                      -UseBasicParsing `
+                      -Headers @{ "User-Agent" = "PowerShell" }
+}
+
+Write-Progress -Activity "Download Complete" -Completed
+$currentCount | Out-File $countLog -Encoding ascii -Force
+
+$msg = "$now - Downloaded and updated $currentCount themes."
+Write-Host "`n$msg" -ForegroundColor Green
+Add-Content -Path $logFile -Value $msg
+
+# Set up scheduled task once
+$taskName = "Update Oh My Posh Themes"
+if (-not (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue)) {
+    $choice = Read-Host "`nDo you want to schedule this script to auto-run weekly on Sundays at 10 AM? (y/n)"
+    if ($choice -match '^[Yy]$') {
+        $escapedScript = "`"$PSCommandPath`""
+        $action = New-ScheduledTaskAction -Execute "pwsh.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File $escapedScript"
+        $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 10:00AM
+
+        try {
+            Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -Description "Auto update OMP themes weekly" -Force
+            Write-Host "Scheduled task created: '$taskName'" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to register scheduled task. Run PowerShell as Administrator." -ForegroundColor Red
+        }
+    } else {
+        Write-Host "Skipped scheduler setup." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "Scheduled task already exists: '$taskName'" -ForegroundColor Gray
+}

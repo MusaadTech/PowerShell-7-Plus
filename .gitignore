@@ -1,0 +1,58 @@
+# PowerShell environment setup project
+# Ignore files that are generated or contain sensitive information
+
+# Log files
+*.log
+update.log
+theme-count.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# PowerShell specific
+*.ps1.log
+*.ps1.tmp
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Backup files
+*.backup
+*.old
+
+# Test files
+test-*.ps1
+*.test.ps1
+
+# Documentation builds
+docs/_build/
+site/
+
+# Package files
+*.zip
+*.tar.gz
+*.rar
+
+# Sensitive information (if any)
+config.local.ps1
+secrets.ps1
+*.key
+*.pem 
