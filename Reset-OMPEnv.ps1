@@ -4,6 +4,33 @@ Write-Host "Resetting PowerShell + Oh My Posh environment..." -ForegroundColor D
 $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 $ompDir = Join-Path $scriptDir "oh-my-posh"
 
+# Error logging function
+function Write-ErrorLog {
+    param(
+        [string]$Script,
+        [string]$ErrorType,
+        [string]$Description
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$Script] [$ErrorType] - $Description"
+    $errorLogFile = Join-Path $scriptDir "errors.log"
+    
+    # Create file with header if it doesn't exist
+    if (-not (Test-Path $errorLogFile)) {
+        $header = @"
+# Terminal Customization - Error Log
+# This file tracks errors and issues encountered during installation or usage
+# Format: [TIMESTAMP] [SCRIPT] [ERROR_TYPE] - [DESCRIPTION]
+# Created: $timestamp
+
+"@
+        Set-Content -Path $errorLogFile -Value $header -Encoding UTF8
+    }
+    
+    Add-Content -Path $errorLogFile -Value $logEntry
+    Write-Host "Error logged: $Description" -ForegroundColor Red
+}
+
 # Step 1: Delete oh-my-posh directory
 Write-Host "`nStep 1: Delete oh-my-posh directory" -ForegroundColor Yellow
 if (Test-Path $ompDir) {
@@ -29,7 +56,13 @@ if (Test-Path $PROFILE) {
 # Step 4: Uninstall Oh My Posh
 Write-Host "`nStep 4: Uninstall Oh My Posh" -ForegroundColor Yellow
 Write-Host "Uninstalling Oh My Posh via winget..." -ForegroundColor Red
-winget uninstall JanDeDobbeleer.OhMyPosh -e --silent | Out-Null
+try {
+    winget uninstall JanDeDobbeleer.OhMyPosh -e --silent | Out-Null
+}
+catch {
+    $errorMsg = "Failed to uninstall Oh My Posh: $($_.Exception.Message)"
+    Write-ErrorLog -Script "Reset-OMPEnv.ps1" -ErrorType "UNINSTALL_ERROR" -Description $errorMsg
+}
 
 # Step 5: Remove Oh My Posh entries from user PATH
 Write-Host "`nStep 5: Remove Oh My Posh entries from user PATH" -ForegroundColor Yellow
@@ -43,7 +76,13 @@ Write-Host "Removed oh-my-posh from PATH (User scope)." -ForegroundColor Red
 # Step 6: Uninstall PowerShell 7
 Write-Host "`nStep 6: Uninstall PowerShell 7" -ForegroundColor Yellow
 Write-Host "Uninstalling PowerShell 7 via winget..." -ForegroundColor Red
-winget uninstall Microsoft.PowerShell -e --silent | Out-Null
+try {
+    winget uninstall Microsoft.PowerShell -e --silent | Out-Null
+}
+catch {
+    $errorMsg = "Failed to uninstall PowerShell 7: $($_.Exception.Message)"
+    Write-ErrorLog -Script "Reset-OMPEnv.ps1" -ErrorType "UNINSTALL_ERROR" -Description $errorMsg
+}
 
 # Step 7: Reset default profile in Windows Terminal settings
 Write-Host "`nStep 7: Reset default profile in Windows Terminal settings" -ForegroundColor Blue

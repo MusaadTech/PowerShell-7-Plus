@@ -130,6 +130,7 @@ Set-OMPTheme "jandedobbeleer.omp.json"
 ├── 📇 README.md                    # This file
 ├── ⚖️ LICENSE                      # MIT License
 ├── 🗒️ .gitignore                   # Git ignore rules
+├── 📄 errors.log                   # Error tracking log (auto-generated)
 └── 📂 oh-my-posh/
     ├── 📂 themes/                  # Local theme collection (100+ themes)
     ├── 🗒️theme-count.log           # Theme count tracking
@@ -144,15 +145,17 @@ Set-OMPTheme "jandedobbeleer.omp.json"
 - **Step 1**: Install PowerShell 7 via winget
 - **Step 2**: Install Oh My Posh via winget
 - **Step 3**: Locate and configure Oh My Posh PATH
-- **Step 4**: Create PowerShell profile
-- **Step 5**: Inject Oh My Posh initialization code
-- **Step 6**: Sanitize profile content
-- **Step 7**: Run theme updater
-- **Step 8**: Configure system defaults
-- **Step 9**: Refresh environment variables
-- **Step 10**: Reload profile
-- **Step 11**: Restart terminal
-- **Step 12**: Close current terminal
+- **Step 3.5**: Configure POSH_THEMES_PATH environment variable
+- **Step 4**: Create oh-my-posh themes directory
+- **Step 5**: Create PowerShell profile
+- **Step 6**: Inject Oh My Posh initialization code
+- **Step 7**: Sanitize profile content
+- **Step 8**: Run theme updater
+- **Step 9**: Configure system defaults
+- **Step 10**: Refresh environment variables
+- **Step 11**: Reload profile
+- **Step 12**: Restart terminal
+- **Step 13**: Close current terminal
 
 ### `Reset-OMPEnv.ps1`
 **Complete uninstaller** that removes everything:
@@ -218,6 +221,39 @@ Set-OMPTheme "nonexistent-theme"
 ```powershell
 # Complete reset
 .\Reset-OMPEnv.ps1
+```
+
+## Error Logging
+
+The project includes comprehensive error logging to help with troubleshooting:
+
+### Error Log File
+- **Location**: `errors.log` (in project root)
+- **Format**: `[TIMESTAMP] [SCRIPT] [ERROR_TYPE] - [DESCRIPTION]`
+- **Auto-generated**: Created automatically when the first error occurs
+- **Header**: Includes descriptive header when first created
+- **Encoding**: UTF-8 format for proper character support
+
+### Error Types Tracked
+- **`WINGET_ERROR`** - Package installation failures
+- **`PATH_ERROR`** - Oh My Posh PATH detection issues
+- **`INSTALLATION_ERROR`** - General installation problems
+- **`API_ERROR`** - GitHub API connection issues
+- **`DOWNLOAD_ERROR`** - Theme download failures
+- **`THEME_UPDATE_ERROR`** - Theme update script issues
+- **`UNINSTALL_ERROR`** - Uninstallation problems
+- **`MISSING_FILE`** - Required files not found
+
+### Viewing Error Logs
+```powershell
+# View recent errors
+Get-Content errors.log -Tail 10
+
+# Search for specific error types
+Select-String -Path errors.log -Pattern "WINGET_ERROR"
+
+# Clear error log (if needed)
+Clear-Content errors.log
 ```
 
 ## Scheduled Updates

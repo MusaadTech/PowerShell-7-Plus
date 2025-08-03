@@ -5,6 +5,33 @@ $themesDir = Join-Path $ompBaseDir "themes"
 $countLog = Join-Path $ompBaseDir "theme-count.log"
 $logFile = Join-Path $ompBaseDir "update.log"
 
+# Error logging function
+function Write-ErrorLog {
+    param(
+        [string]$Script,
+        [string]$ErrorType,
+        [string]$Description
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "[$timestamp] [$Script] [$ErrorType] - $Description"
+    $errorLogFile = Join-Path $scriptDir "errors.log"
+    
+    # Create file with header if it doesn't exist
+    if (-not (Test-Path $errorLogFile)) {
+        $header = @"
+# Terminal Customization - Error Log
+# This file tracks errors and issues encountered during installation or usage
+# Format: [TIMESTAMP] [SCRIPT] [ERROR_TYPE] - [DESCRIPTION]
+# Created: $timestamp
+
+"@
+        Set-Content -Path $errorLogFile -Value $header -Encoding UTF8
+    }
+    
+    Add-Content -Path $errorLogFile -Value $logEntry
+    Write-Host "Error logged: $Description" -ForegroundColor Red
+}
+
 # Create directories
 if (-not (Test-Path $ompBaseDir)) {
     New-Item -ItemType Directory -Path $ompBaseDir -Force | Out-Null
@@ -13,7 +40,15 @@ New-Item -ItemType Directory -Path $themesDir -Force | Out-Null
 
 # GitHub API for themes
 $themesApi = "https://api.github.com/repos/JanDeDobbeleer/oh-my-posh/contents/themes"
-$response = Invoke-RestMethod -Uri $themesApi -Headers @{ "User-Agent" = "PowerShell" }
+try {
+    $response = Invoke-RestMethod -Uri $themesApi -Headers @{ "User-Agent" = "PowerShell" }
+}
+catch {
+    $errorMsg = "Failed to fetch themes from GitHub API: $($_.Exception.Message)"
+    Write-ErrorLog -Script "Update-OMPThemes.ps1" -ErrorType "API_ERROR" -Description $errorMsg
+    Write-Host "Failed to fetch themes from GitHub. Check your internet connection." -ForegroundColor Red
+    exit 1
+}
 
 # Filter valid .omp.json files
 $themeFiles = $response | Where-Object { $_.name -like "*.omp.json" }
@@ -23,7 +58,8 @@ $now = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
 # Load previous count (if exists)
 $previousCount = if (Test-Path $countLog) {
     Get-Content $countLog | Select-Object -First 1
-} else {
+}
+else {
     "0"
 }
 
@@ -47,13 +83,20 @@ for ($i = 0; $i -lt $total; $i++) {
     $status = "$name - $completion%"
 
     Write-Progress -Activity "Downloading Oh My Posh Themes" `
-                   -Status $status `
-                   -PercentComplete (($i / $total) * 100)
+        -Status $status `
+        -PercentComplete (($i / $total) * 100)
 
-    Invoke-WebRequest -Uri $file.download_url `
-                      -OutFile $themePath `
-                      -UseBasicParsing `
-                      -Headers @{ "User-Agent" = "PowerShell" }
+    try {
+        Invoke-WebRequest -Uri $file.download_url `
+            -OutFile $themePath `
+            -UseBasicParsing `
+            -Headers @{ "User-Agent" = "PowerShell" }
+    }
+    catch {
+        $errorMsg = "Failed to download theme $($file.name): $($_.Exception.Message)"
+        Write-ErrorLog -Script "Update-OMPThemes.ps1" -ErrorType "DOWNLOAD_ERROR" -Description $errorMsg
+        Write-Host "Failed to download theme: $($file.name)" -ForegroundColor Red
+    }
 }
 
 Write-Progress -Activity "Download Complete" -Completed
@@ -79,9 +122,11 @@ if (-not (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue)) 
         catch {
             Write-Host "Failed to register scheduled task. Run PowerShell as Administrator." -ForegroundColor Red
         }
-    } else {
+    }
+    else {
         Write-Host "Skipped scheduler setup." -ForegroundColor Yellow
     }
-} else {
+}
+else {
     Write-Host "Scheduled task already exists: '$taskName'" -ForegroundColor Gray
 }

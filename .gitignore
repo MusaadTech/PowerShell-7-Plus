@@ -1,10 +1,14 @@
 # PowerShell environment setup project
 # Ignore files that are generated or contain sensitive information
 
+# Oh My Posh directory
+oh-my-posh/
+
 # Log files
 *.log
 update.log
 theme-count.log
+errors.log
 
 # Temporary files
 *.tmp
