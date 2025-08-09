@@ -130,9 +130,11 @@ theme "jandedobbeleer.omp.json"
 ├── 🗒️ Install-OMPEnv.ps1           # Main installer script
 ├── 🗒️ Reset-OMPEnv.ps1             # Complete uninstaller
 ├── 🗒️ Update-OMPThemes.ps1         # Theme updater with scheduler
+├── 🗒️ Test-ProjectUpdates.ps1     # Checks for new project versions
 ├── 📇 README.md                    # This file
 ├── ⚖️ LICENSE                      # MIT License
 ├── 🗒️ .gitignore                   # Git ignore rules
+├── 📄 version.txt                  # Current project version
 ├── 📄 errors.log                   # Error tracking log (auto-generated)
 └── 📂 oh-my-posh/
     ├── 📂 themes/                  # Local theme collection (100+ themes)
@@ -157,8 +159,17 @@ theme "jandedobbeleer.omp.json"
 - **Step 9**: Configure system defaults
 - **Step 10**: Refresh environment variables
 - **Step 11**: Reload profile
-- **Step 12**: Restart terminal
-- **Step 13**: Close current terminal
+- **Step 12**: Check for project updates
+- **Step 13**: Restart terminal
+- **Step 14**: Close current terminal
+
+### `Test-ProjectUpdates.ps1`
+**Project update checker** with a graphical interface:
+
+- Checks GitHub for new releases
+- Displays a native Windows dialog box to notify the user
+- Allows users to approve or deny updates
+- Backs up the current installation before updating
 
 ### `Reset-OMPEnv.ps1`
 **Complete uninstaller** that removes everything:
@@ -175,7 +186,6 @@ theme "jandedobbeleer.omp.json"
 
 - Downloads latest themes from GitHub
 - Tracks theme count to avoid unnecessary downloads
-- Creates scheduled task for weekly updates
 - Provides progress indicators during download
 
 ## Advanced Usage
@@ -259,23 +269,15 @@ Select-String -Path errors.log -Pattern "WINGET_ERROR"
 Clear-Content errors.log
 ```
 
-## Scheduled Updates
+## Automatic Background Updates
 
-The installer can set up automatic theme updates:
+This project is designed to be self-maintaining. Once installed, it will automatically check for updates in the background without interrupting your workflow.
 
-- **Frequency**: Weekly (Sundays at 10:00 AM)
-- **Task Name**: "Update Oh My Posh Themes"
-- **Scope**: User-level scheduled task
-- **Requires**: Administrator privileges for setup
+- **Project Version Check**: Every time you open a terminal, the script will silently check GitHub for a new project release. If one is found, a graphical dialog will ask for your permission to update. The update process is safe and preserves your theme settings.
 
-To manage scheduled tasks:
-```powershell
-# View scheduled task
-Get-ScheduledTask -TaskName "Update Oh My Posh Themes"
+- **Theme Updates**: Themes are automatically updated weekly. The script checks once a week in the background to download the latest themes from the official Oh My Posh repository.
 
-# Remove scheduled task
-Unregister-ScheduledTask -TaskName "Update Oh My Posh Themes" -Confirm:$false
-```
+These checks run as background jobs, so they will not slow down your terminal startup.
 
 ## Contributing
 

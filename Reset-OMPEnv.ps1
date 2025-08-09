@@ -38,15 +38,7 @@ if (Test-Path $ompDir) {
     Write-Host "Deleted directory: $ompDir" -ForegroundColor Red
 }
 
-# Step 2: Unregister scheduled task
-Write-Host "`nStep 2: Unregister scheduled task" -ForegroundColor Yellow
-$taskName = "Update Oh My Posh Themes"
-if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
-    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-    Write-Host "Removed scheduled task: $taskName" -ForegroundColor Red
-}
-
-# Step 3: Remove PowerShell profile
+# Step 2: Remove PowerShell profile
 Write-Host "`nStep 3: Remove PowerShell profile" -ForegroundColor Yellow
 if (Test-Path $PROFILE) {
     Remove-Item -Path $PROFILE -Force -ErrorAction SilentlyContinue

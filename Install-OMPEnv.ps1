@@ -246,6 +246,38 @@ function Set-OMPTheme {
 
 # Set alias for theme switching
 Set-Alias -Name theme -Value Set-OMPTheme -Scope Global -ErrorAction SilentlyContinue
+
+# BEGIN: Auto-Update Logic
+# Check for project updates silently in the background on startup
+`$updateCheckScript = Join-Path -Path `$scriptDir -ChildPath "Test-ProjectUpdates.ps1"
+if (Test-Path `$updateCheckScript) {
+    Start-Job -ScriptBlock {
+        . `$using:updateCheckScript
+        Test-ProjectUpdates -Silent
+    } | Out-Null
+}
+
+# Check for theme updates weekly
+`$themeUpdateLog = Join-Path -Path `$ompBaseDir -ChildPath "last-theme-update.log"
+`$needsThemeUpdate = $true
+if (Test-Path `$themeUpdateLog) {
+    `$lastUpdate = Get-Content `$themeUpdateLog
+    if (((Get-Date) - [datetime]`$lastUpdate).TotalDays -lt 7) {
+        `$needsThemeUpdate = $false
+    }
+}
+if (`$needsThemeUpdate) {
+    `$themeUpdateScript = Join-Path -Path `$scriptDir -ChildPath "Update-OMPThemes.ps1"
+    if (Test-Path `$themeUpdateScript) {
+        Start-Job -ScriptBlock {
+            . `$using:themeUpdateScript
+            Update-Themes # Assumes a function inside the script
+            Set-Content -Path `$using:themeUpdateLog -Value (Get-Date)
+        } | Out-Null
+    }
+}
+# END: Auto-Update Logic
+
 # END: Oh My Posh init block
 "@
 

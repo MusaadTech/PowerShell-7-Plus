@@ -106,27 +106,3 @@ $msg = "$now - Downloaded and updated $currentCount themes."
 Write-Host "`n$msg" -ForegroundColor Green
 Add-Content -Path $logFile -Value $msg
 
-# Set up scheduled task once
-$taskName = "Update Oh My Posh Themes"
-if (-not (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue)) {
-    $choice = Read-Host "`nDo you want to schedule this script to auto-run weekly on Sundays at 10 AM? (y/n)"
-    if ($choice -match '^[Yy]$') {
-        $escapedScript = "`"$PSCommandPath`""
-        $action = New-ScheduledTaskAction -Execute "pwsh.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File $escapedScript"
-        $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 10:00AM
-
-        try {
-            Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -Description "Auto update OMP themes weekly" -Force
-            Write-Host "Scheduled task created: '$taskName'" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "Failed to register scheduled task. Run PowerShell as Administrator." -ForegroundColor Red
-        }
-    }
-    else {
-        Write-Host "Skipped scheduler setup." -ForegroundColor Yellow
-    }
-}
-else {
-    Write-Host "Scheduled task already exists: '$taskName'" -ForegroundColor Gray
-}
