@@ -135,15 +135,20 @@ else {
     }
 }
 
-# Step 3.5: Fix POSH_THEMES_PATH environment variable
-Write-Host "`nStep 3.5: Configure POSH_THEMES_PATH" -ForegroundColor Cyan
+# Step 3.5: Configure Environment Variables
+Write-Host "`nStep 3.5: Configure Environment Variables" -ForegroundColor Cyan
+
+# Set TERMINAL_CUSTOMIZATION_PATH to the script's directory
+[Environment]::SetEnvironmentVariable("TERMINAL_CUSTOMIZATION_PATH", $scriptDir, "User")
+Write-Host "Set TERMINAL_CUSTOMIZATION_PATH to: $scriptDir" -ForegroundColor Green
 
 # Set POSH_THEMES_PATH to point to our project themes directory
 [Environment]::SetEnvironmentVariable("POSH_THEMES_PATH", $themesDir, "User")
 Write-Host "Set POSH_THEMES_PATH to: $themesDir" -ForegroundColor Green
-
+ 
 # Also set it for current session
 $env:POSH_THEMES_PATH = $themesDir
+$env:TERMINAL_CUSTOMIZATION_PATH = $scriptDir
 
 # Step 4: Create oh-my-posh themes directory
 Write-Host "`nStep 4: Create oh-my-posh themes directory" -ForegroundColor Cyan
@@ -248,32 +253,42 @@ function Set-OMPTheme {
 Set-Alias -Name theme -Value Set-OMPTheme -Scope Global -ErrorAction SilentlyContinue
 
 # BEGIN: Auto-Update Logic
-# Check for project updates silently in the background on startup
-`$updateCheckScript = Join-Path -Path `$scriptDir -ChildPath "Test-ProjectUpdates.ps1"
-if (Test-Path `$updateCheckScript) {
-    Start-Job -ScriptBlock {
-        . `$using:updateCheckScript
-        Test-ProjectUpdates -Silent
-    } | Out-Null
-}
+# This block runs every time the profile is loaded
+if (`$env:TERMINAL_CUSTOMIZATION_PATH) {
+    `$scriptDir = `$env:TERMINAL_CUSTOMIZATION_PATH
+    `$ompBaseDir = Join-Path `$scriptDir "oh-my-posh"
 
-# Check for theme updates weekly
-`$themeUpdateLog = Join-Path -Path `$ompBaseDir -ChildPath "last-theme-update.log"
-`$needsThemeUpdate = $true
-if (Test-Path `$themeUpdateLog) {
-    `$lastUpdate = Get-Content `$themeUpdateLog
-    if (((Get-Date) - [datetime]`$lastUpdate).TotalDays -lt 7) {
-        `$needsThemeUpdate = $false
-    }
-}
-if (`$needsThemeUpdate) {
-    `$themeUpdateScript = Join-Path -Path `$scriptDir -ChildPath "Update-OMPThemes.ps1"
-    if (Test-Path `$themeUpdateScript) {
+    # Check for project updates silently in the background
+    `$updateCheckScript = Join-Path -Path `$scriptDir -ChildPath "Test-ProjectUpdates.ps1"
+    if (Test-Path `$updateCheckScript) {
         Start-Job -ScriptBlock {
-            . `$using:themeUpdateScript
-            Update-Themes # Assumes a function inside the script
-            Set-Content -Path `$using:themeUpdateLog -Value (Get-Date)
-        } | Out-Null
+            param(`$script)
+            . `$script
+            Test-ProjectUpdates -Silent
+        } -ArgumentList `$updateCheckScript | Out-Null
+    }
+
+    # Check for theme updates weekly
+    `$themeUpdateLog = Join-Path -Path `$ompBaseDir -ChildPath "last-theme-update.log"
+    `$needsThemeUpdate = `$true
+    if (Test-Path `$themeUpdateLog) {
+        try {
+            `$lastUpdate = Get-Content `$themeUpdateLog -ErrorAction Stop
+            if (((Get-Date) - [datetime]`$lastUpdate).TotalDays -lt 7) {
+                `$needsThemeUpdate = `$false
+            }
+        } catch {}
+    }
+
+    if (`$needsThemeUpdate) {
+        `$themeUpdateScript = Join-Path -Path `$scriptDir -ChildPath "Update-OMPThemes.ps1"
+        if (Test-Path `$themeUpdateScript) {
+            Start-Job -ScriptBlock {
+                param(`$script, `$log)
+                & `$script
+                Set-Content -Path `$log -Value (Get-Date)
+            } -ArgumentList `$themeUpdateScript, `$themeUpdateLog | Out-Null
+        }
     }
 }
 # END: Auto-Update Logic

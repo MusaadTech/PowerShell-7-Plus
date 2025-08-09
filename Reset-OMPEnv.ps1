@@ -56,14 +56,16 @@ catch {
     Write-ErrorLog -Script "Reset-OMPEnv.ps1" -ErrorType "UNINSTALL_ERROR" -Description $errorMsg
 }
 
-# Step 5: Remove Oh My Posh entries from user PATH
-Write-Host "`nStep 5: Remove Oh My Posh entries from user PATH" -ForegroundColor Yellow
+# Step 5: Remove Environment Variables and PATH entries
+Write-Host "`nStep 5: Remove Environment Variables and PATH entries" -ForegroundColor Yellow
 $envPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 $paths = $envPath -split ";"
 $filtered = $paths | Where-Object { $_ -notmatch "oh-my-posh" }
 $newPath = ($filtered -join ";").TrimEnd(";")
 [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
-Write-Host "Removed oh-my-posh from PATH (User scope)." -ForegroundColor Red
+[Environment]::SetEnvironmentVariable("TERMINAL_CUSTOMIZATION_PATH", $null, "User")
+[Environment]::SetEnvironmentVariable("POSH_THEMES_PATH", $null, "User")
+Write-Host "Cleaned up PATH and removed environment variables." -ForegroundColor Red
 
 # Step 6: Uninstall PowerShell 7
 Write-Host "`nStep 6: Uninstall PowerShell 7" -ForegroundColor Yellow
