@@ -197,7 +197,7 @@ function Set-OMPTheme {
     
     # Validate parameter
     if ([string]::IsNullOrEmpty(`$name)) {
-        Write-Host "Usage: Set-OMPTheme <theme-name>" -ForegroundColor Yellow
+        Write-Host "Usage: Set-OMPTheme <theme-name> (or theme <theme-name>)" -ForegroundColor Yellow
         Write-Host "Example: Set-OMPTheme jandedobbeleer" -ForegroundColor Gray
         Write-Host "Available themes:" -ForegroundColor Yellow
         
@@ -226,7 +226,8 @@ function Set-OMPTheme {
     `$themePath = Join-Path `$themesDir `$name
     if (Test-Path `$themePath) {
         oh-my-posh init pwsh --config "`$themePath" | Invoke-Expression
-        Write-Host "Theme switched to: `$name" -ForegroundColor Green
+        `$themeNameWithoutExt = `$name -replace '\.omp\.json$', ''
+        Write-Host "Theme switched to: `$themeNameWithoutExt" -ForegroundColor Green
     } else {
         # Show theme name without extension for cleaner error message
         `$themeNameWithoutExt = `$name -replace '\.omp\.json$', ''
@@ -242,6 +243,9 @@ function Set-OMPTheme {
         }
     }
 }
+
+# Set alias for theme switching
+Set-Alias -Name theme -Value Set-OMPTheme -Scope Global -ErrorAction SilentlyContinue
 # END: Oh My Posh init block
 "@
 

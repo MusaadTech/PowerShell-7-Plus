@@ -100,17 +100,20 @@ Get-ChildItem ".\oh-my-posh\themes\" -Filter "*.omp.json" | Select-Object Name
 ```
 
 ### Switching Themes
-Use the built-in `Set-OMPTheme` function to switch themes instantly:
+Use the built-in `Set-OMPTheme` function or the `theme` alias to switch themes instantly:
 
 ```powershell
-# Switch to a specific theme (just the name, no extension needed!)
+# Switch themes using the new 'theme' alias (recommended)
+theme jandedobbeleer
+theme agnoster
+theme powerlevel10k_modern
+theme dracula
+
+# Or use the full function name
 Set-OMPTheme "jandedobbeleer"
-Set-OMPTheme "agnoster"
-Set-OMPTheme "powerlevel10k_modern"
-Set-OMPTheme "dracula"
 
 # You can also use the full filename if preferred
-Set-OMPTheme "jandedobbeleer.omp.json"
+theme "jandedobbeleer.omp.json"
 ```
 
 ### Popular Theme Examples
