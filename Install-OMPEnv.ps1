@@ -1,5 +1,94 @@
 Write-Host "Setting up PowerShell 7 + Oh My Posh environment..." -ForegroundColor DarkRed
 
+# Step 0: Ask user to close all open terminal sessions
+Write-Host "`nStep 0: Close all open terminal sessions" -ForegroundColor Cyan
+$closeTerminals = Read-Host "Do you want to close all open terminal sessions? (y/n)"
+
+if ($closeTerminals -eq "y" -or $closeTerminals -eq "Y") {
+    Write-Host "Closing all open terminal sessions..." -ForegroundColor Yellow
+    
+    try {
+        # Get current process ID and session ID to avoid closing the current terminal
+        $currentPID = $PID
+        $currentSessionId = [System.Diagnostics.Process]::GetCurrentProcess().SessionId
+        
+        Write-Host "Current process ID: $currentPID" -ForegroundColor Gray
+        Write-Host "Current session ID: $currentSessionId" -ForegroundColor Gray
+        
+        # Find all Windows Terminal processes, but exclude the current session
+        $allTerminalProcesses = Get-Process -Name "WindowsTerminal" -ErrorAction SilentlyContinue
+        
+        if ($allTerminalProcesses) {
+            Write-Host "Found $($allTerminalProcesses.Count) Windows Terminal processes total." -ForegroundColor Gray
+            
+            # Filter out processes from the current session
+            $terminalProcessesToClose = $allTerminalProcesses | Where-Object { 
+                $_.SessionId -ne $currentSessionId
+            }
+            
+            if ($terminalProcessesToClose) {
+                Write-Host "Found $($terminalProcessesToClose.Count) terminal sessions from other sessions to close. Closing them..." -ForegroundColor Yellow
+                $terminalProcessesToClose | ForEach-Object {
+                    Write-Host "Closing terminal process ID: $($_.Id) from session: $($_.SessionId)" -ForegroundColor Gray
+                    try {
+                        Stop-Process -Id $_.Id -Force -ErrorAction Stop
+                        Write-Host "Successfully closed terminal process ID: $($_.Id)" -ForegroundColor Green
+                    } catch {
+                        Write-Host "Failed to close terminal process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
+                    }
+                }
+                Write-Host "All other terminal sessions closed successfully." -ForegroundColor Green
+            } else {
+                Write-Host "No other terminal sessions found to close." -ForegroundColor Gray
+            }
+        } else {
+            Write-Host "No Windows Terminal processes found." -ForegroundColor Gray
+        }
+        
+        # Also try to close any other PowerShell processes from other sessions
+        $allPowerShellProcesses = Get-Process -Name "powershell", "pwsh" -ErrorAction SilentlyContinue
+        
+        if ($allPowerShellProcesses) {
+            Write-Host "Found $($allPowerShellProcesses.Count) PowerShell processes total." -ForegroundColor Gray
+            
+            # Filter out processes from the current session
+            $powerShellProcessesToClose = $allPowerShellProcesses | Where-Object { 
+                $_.SessionId -ne $currentSessionId
+            }
+            
+            if ($powerShellProcessesToClose) {
+                Write-Host "Found $($powerShellProcessesToClose.Count) PowerShell processes from other sessions to close. Closing them..." -ForegroundColor Yellow
+                $powerShellProcessesToClose | ForEach-Object {
+                    Write-Host "Closing PowerShell process ID: $($_.Id) from session: $($_.SessionId)" -ForegroundColor Gray
+                    try {
+                        Stop-Process -Id $_.Id -Force -ErrorAction Stop
+                        Write-Host "Successfully closed PowerShell process ID: $($_.Id)" -ForegroundColor Green
+                    } catch {
+                        Write-Host "Failed to close PowerShell process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
+                    }
+                }
+                Write-Host "All other PowerShell processes closed successfully." -ForegroundColor Green
+            } else {
+                Write-Host "No other PowerShell processes found to close." -ForegroundColor Gray
+            }
+        }
+        
+        Start-Sleep -Seconds 1
+    }
+    catch {
+        Write-Host "Warning: Could not close all terminal sessions: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "Continuing with installation..." -ForegroundColor Gray
+    }
+} else {
+    Write-Host "`nInstallation cannot proceed without closing other terminal sessions." -ForegroundColor Red
+    Write-Host "This is necessary to prevent conflicts during the installation process." -ForegroundColor Yellow
+    Write-Host "`nPlease close all other terminal windows manually and run this script again." -ForegroundColor Cyan
+    Write-Host "`nApologies for the inconvenience, but this step is required for a successful installation." -ForegroundColor Magenta
+    Write-Host "`nPress any key to exit..." -ForegroundColor Gray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    [System.Environment]::Exit(1)
+}
+
 # Define script and theme paths (relative to script location)
 $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 $ompBaseDir = Join-Path $scriptDir "oh-my-posh"
@@ -135,8 +224,8 @@ else {
     }
 }
 
-# Step 3.5: Fix POSH_THEMES_PATH environment variable
-Write-Host "`nStep 3.5: Configure POSH_THEMES_PATH" -ForegroundColor Cyan
+# Step 4: Fix POSH_THEMES_PATH environment variable
+Write-Host "`nStep 4: Configure POSH_THEMES_PATH" -ForegroundColor Cyan
 
 # Set POSH_THEMES_PATH to point to our project themes directory
 [Environment]::SetEnvironmentVariable("POSH_THEMES_PATH", $themesDir, "User")
@@ -145,8 +234,8 @@ Write-Host "Set POSH_THEMES_PATH to: $themesDir" -ForegroundColor Green
 # Also set it for current session
 $env:POSH_THEMES_PATH = $themesDir
 
-# Step 4: Create oh-my-posh themes directory
-Write-Host "`nStep 4: Create oh-my-posh themes directory" -ForegroundColor Cyan
+# Step 5: Create oh-my-posh themes directory
+Write-Host "`nStep 5: Create oh-my-posh themes directory" -ForegroundColor Cyan
 if (-not (Test-Path $themesDir)) {
     New-Item -ItemType Directory -Path $themesDir -Force | Out-Null
     Write-Host "Created themes directory: $themesDir" -ForegroundColor Green
@@ -155,15 +244,15 @@ else {
     Write-Host "Themes directory already exists: $themesDir" -ForegroundColor Gray
 }
 
-# Step 5: Create PowerShell profile if not exists
-Write-Host "`nStep 5: Create PowerShell profile" -ForegroundColor Cyan
+# Step 6: Create PowerShell profile if not exists
+Write-Host "`nStep 6: Create PowerShell profile" -ForegroundColor Cyan
 if (-not (Test-Path -Path $PROFILE)) {
     New-Item -ItemType File -Path $PROFILE -Force | Out-Null
     Write-Host "Created PowerShell profile: $PROFILE" -ForegroundColor Green
 }
 
-# Step 6: Inject dynamic Oh My Posh init logic into profile
-Write-Host "`nStep 6: Append OMP init + theme switcher to profile" -ForegroundColor Cyan
+# Step 7: Inject dynamic Oh My Posh init logic into profile
+Write-Host "`nStep 7: Append OMP init + theme switcher to profile" -ForegroundColor Cyan
 
 $initBlock = @"
 # BEGIN: Oh My Posh init block
@@ -265,16 +354,16 @@ else {
     Write-Host "Injected Oh My Posh logic into profile." -ForegroundColor Green
 }
 
-# Step 7: Sanitize profile
-Write-Host "`nStep 7: Sanitize PowerShell profile" -ForegroundColor Cyan
+# Step 8: Sanitize profile
+Write-Host "`nStep 8: Sanitize PowerShell profile" -ForegroundColor Cyan
 $content = Get-Content $PROFILE -Raw
 # Only remove extra blank lines, don't remove parameter declarations
 $fixed = $content -replace '(\r?\n){3,}', "`r`n`r`n"
 Set-Content -Path $PROFILE -Value $fixed -Encoding UTF8
 Write-Host "Profile sanitized." -ForegroundColor Green
 
-# Step 8: Run Update-OMPThemes.ps1
-Write-Host "`nStep 8: Run Update-OMPThemes.ps1" -ForegroundColor Cyan
+# Step 9: Run Update-OMPThemes.ps1
+Write-Host "`nStep 9: Run Update-OMPThemes.ps1" -ForegroundColor Cyan
 $updateScript = Join-Path $scriptDir "Update-OMPThemes.ps1"
 if (Test-Path $updateScript) {
     Write-Host "Running Update-OMPThemes.ps1..." -ForegroundColor Yellow
@@ -291,8 +380,8 @@ else {
     Write-ErrorLog -Script "Install-OMPEnv.ps1" -ErrorType "MISSING_FILE" -Description "Update-OMPThemes.ps1 not found in script directory"
 }
 
-# Step 9: Set PowerShell 7 as default shell
-Write-Host "`nStep 9: Set PowerShell 7 as default shell" -ForegroundColor Cyan
+# Step 10: Set PowerShell 7 as default shell
+Write-Host "`nStep 10: Set PowerShell 7 as default shell" -ForegroundColor Cyan
 
 # Set PowerShell 7 as default for .ps1 files
 try {
@@ -335,8 +424,8 @@ catch {
     Write-Host "Could not configure Windows Terminal default profile" -ForegroundColor Yellow
 }
 
-# Step 10: Refresh environment variables
-Write-Host "`nStep 10: Refresh environment variables" -ForegroundColor Cyan
+# Step 11: Refresh environment variables
+Write-Host "`nStep 11: Refresh environment variables" -ForegroundColor Cyan
 try {
     # Try to use refreshenv if available (from Chocolatey)
     refreshenv
@@ -351,15 +440,15 @@ catch {
     Write-Host "PATH manually refreshed." -ForegroundColor Green
 }
 
-# Step 11: Reload profile
-Write-Host "`nStep 11: Reload PowerShell profile" -ForegroundColor Cyan
+# Step 12: Reload profile
+Write-Host "`nStep 12: Reload PowerShell profile" -ForegroundColor Cyan
 . $PROFILE
 Write-Host "PowerShell profile reloaded." -ForegroundColor Green
 
-# Step 12: Restart terminal
-Write-Host "`nStep 12: Restart terminal" -ForegroundColor Cyan
+# Step 13: Restart terminal
+Write-Host "`nStep 13: Restart terminal" -ForegroundColor Cyan
 Start-Sleep -Seconds 2
 Start-Process wt.exe
 
-# Step 13: Close current terminal
+# Step 14: Close current terminal
 [System.Environment]::Exit(0)
