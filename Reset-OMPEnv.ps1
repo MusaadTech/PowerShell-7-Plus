@@ -1,3 +1,23 @@
+Write-Host "WARNING: This script will completely remove your PowerShell 7 + Oh My Posh environment!" -ForegroundColor Red
+Write-Host "This action is IRREVERSIBLE and will delete:" -ForegroundColor Yellow
+Write-Host "  * All Oh My Posh themes and configurations" -ForegroundColor Red
+Write-Host "  * Your PowerShell profile with customizations" -ForegroundColor Red
+Write-Host "  * PowerShell 7 installation" -ForegroundColor Red
+Write-Host "  * Oh My Posh installation" -ForegroundColor Red
+Write-Host "  * Windows Terminal profile settings" -ForegroundColor Red
+Write-Host "  * Scheduled theme updates" -ForegroundColor Red
+Write-Host ""
+
+# Get user confirmation
+$confirmation = Read-Host "Are you absolutely sure you want to continue? Type 'YES' to confirm"
+if ($confirmation -ne "YES") {
+    Write-Host "`nReset cancelled. Your environment remains unchanged." -ForegroundColor Green
+    Write-Host "Press any key to exit..." -ForegroundColor Gray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    [System.Environment]::Exit(0)
+}
+
+Write-Host "`nUser confirmed. Proceeding with complete environment reset..." -ForegroundColor DarkRed
 Write-Host "Resetting PowerShell + Oh My Posh environment..." -ForegroundColor DarkRed
 
 # Get script directory
