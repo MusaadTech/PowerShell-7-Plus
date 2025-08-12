@@ -1,4 +1,4 @@
-# PowerShell 7 + Oh My Posh Environment Setup
+# PowerShell 7 Plus ✨
 
 > **Automated PowerShell environment setup with modern theming and customization**
 
