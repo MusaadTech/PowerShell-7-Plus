@@ -398,32 +398,6 @@ catch {
     Write-Host "Could not set PowerShell 7 as default for .ps1 files" -ForegroundColor Yellow
 }
 
-# Configure Windows Terminal to use PowerShell 7 as default (if available)
-try {
-    $wtSettingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_*\LocalState\settings.json"
-    $wtProfile = Get-ChildItem -Path $wtSettingsPath -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($wtProfile) {
-        $settings = Get-Content $wtProfile.FullName -Raw | ConvertFrom-Json
-        
-        # Find PowerShell 7 profile GUID
-        $pwsh7Profile = $settings.profiles.list | Where-Object { $_.name -eq "PowerShell 7" -or $_.source -eq "Windows.Terminal.PowershellCore" }
-        if ($pwsh7Profile) {
-            $settings.defaultProfile = $pwsh7Profile.guid
-            $settings | ConvertTo-Json -Depth 99 | Set-Content -Path $wtProfile.FullName -Encoding UTF8
-            Write-Host "Set PowerShell 7 as default in Windows Terminal (GUID: $($pwsh7Profile.guid))" -ForegroundColor Green
-        }
-        else {
-            Write-Host "PowerShell 7 profile not found in Windows Terminal" -ForegroundColor Yellow
-        }
-    }
-    else {
-        Write-Host "Windows Terminal not found, skipping default profile setting" -ForegroundColor Gray
-    }
-}
-catch {
-    Write-Host "Could not configure Windows Terminal default profile" -ForegroundColor Yellow
-}
-
 # Step 11: Refresh environment variables
 Write-Host "`nStep 11: Refresh environment variables" -ForegroundColor Cyan
 try {

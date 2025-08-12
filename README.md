@@ -33,7 +33,7 @@ Transform your terminal into a **modern, powerful development environment**:
 - **Offline Access**: All themes are stored locally for use without an internet connection
 
 ### **System Integration**
-- **Windows Terminal Support**: Automatically configures PowerShell 7 as the default profile
+- **Windows Terminal Integration**: Installs and configures PowerShell 7 for use in Windows Terminal. User retain full control—set PowerShell 7 as your default profile in Windows Terminal settings whenever you prefer.
 - **File Association**: Sets PowerShell 7 as the default for `.ps1` scripts
 - **Scheduled Tasks**: Automates theme updates using Windows Task Scheduler
 - **Clean Uninstall**: Easily reset your environment with `Reset-OMPEnv.ps1`
@@ -69,7 +69,7 @@ The script will:
 - ✅ Install Oh My Posh via winget
 - ✅ Configure your PowerShell profile
 - ✅ Set up theme management
-- ✅ Configure Windows Terminal
+- ✅ Install PowerShell 7 (user can set default profile manually)
 - ✅ Launch your new environment
 
 ## Scripts Overview
@@ -88,8 +88,9 @@ The script will:
 - **Step 9**: Run theme updater
 - **Step 10**: Configure system defaults
 - **Step 11**: Refresh environment variables
-- **Step 12**: Restart terminal with profile auto-loading
-- **Step 13**: Close current terminal
+- **Step 12**: Reload PowerShell profile
+- **Step 13**: Restart terminal
+- **Step 14**: Close current terminal
 
 ### `Reset-OMPEnv.ps1`
 **Complete uninstaller** with safety confirmation that removes everything:
@@ -99,7 +100,6 @@ The script will:
 - **System Reset**: Unregisters scheduled tasks and removes PowerShell profile
 - **Software Removal**: Uninstalls Oh My Posh and PowerShell 7
 - **Path Cleanup**: Removes Oh My Posh entries from user PATH
-- **Terminal Reset**: Resets Windows Terminal default profile settings
 
 ### `Update-OMPThemes.ps1`
 **Theme management script** with smart updates:
@@ -112,6 +112,8 @@ The script will:
 ## Installation Details
 
 The installer automatically handles all the complex setup:
+
+> **Note**: The installer no longer automatically sets PowerShell 7 as the default profile in Windows Terminal. Users can manually configure this through Windows Terminal settings if desired.
 
 ### **PowerShell 7 Installation**
 - Uses winget for silent installation
@@ -130,9 +132,16 @@ The installer automatically handles all the complex setup:
 - Sanitizes profile content for optimal performance
 
 ### **Windows Terminal Integration**
-- Sets PowerShell 7 as default profile
+- Installs PowerShell 7 profile (user can set as default manually)
 - Configures automatic profile loading
 - Ensures new terminals load Oh My Posh automatically
+
+#### Manual Default Profile Configuration
+If you want PowerShell 7 as your default profile in Windows Terminal:
+1. Open Windows Terminal
+2. Go to Settings (Ctrl+,)
+3. Select "PowerShell 7" from the profiles list
+4. Click "Set as default"
 
 ## Theme Management
 

@@ -104,23 +104,14 @@ catch {
     Write-ErrorLog -Script "Reset-OMPEnv.ps1" -ErrorType "UNINSTALL_ERROR" -Description $errorMsg
 }
 
-# Step 7: Reset default profile in Windows Terminal settings
-Write-Host "`nStep 7: Reset default profile in Windows Terminal settings" -ForegroundColor Blue
-$settingsPath = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_*\LocalState\settings.json"
-$profileJson = Get-ChildItem -Path $settingsPath -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($profileJson) {
-    $settings = Get-Content $profileJson.FullName -Raw | ConvertFrom-Json
-    $settings.defaultProfile = $null
-    $settings | ConvertTo-Json -Depth 99 | Set-Content -Path $profileJson.FullName -Encoding UTF8
-    Write-Host "Reset Windows Terminal default profile." -ForegroundColor Green
-}
 
-# Step 8: Restart terminal
-Write-Host "`nStep 8: Restart terminal" -ForegroundColor Yellow
+
+# Step 7: Restart terminal
+Write-Host "`nStep 7: Restart terminal" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Reset complete. Restarting Windows Terminal..." -ForegroundColor Green
 Start-Sleep -Seconds 2
 Start-Process wt.exe
 
-# Step 9: Close current terminal
+# Step 8: Close current terminal
 [System.Environment]::Exit(0)
