@@ -33,15 +33,18 @@ if ($closeTerminals -eq "y" -or $closeTerminals -eq "Y") {
                     try {
                         Stop-Process -Id $_.Id -Force -ErrorAction Stop
                         Write-Host "Successfully closed terminal process ID: $($_.Id)" -ForegroundColor Green
-                    } catch {
+                    }
+                    catch {
                         Write-Host "Failed to close terminal process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
                     }
                 }
                 Write-Host "All other terminal sessions closed successfully." -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Host "No other terminal sessions found to close." -ForegroundColor Gray
             }
-        } else {
+        }
+        else {
             Write-Host "No Windows Terminal processes found." -ForegroundColor Gray
         }
         
@@ -63,12 +66,14 @@ if ($closeTerminals -eq "y" -or $closeTerminals -eq "Y") {
                     try {
                         Stop-Process -Id $_.Id -Force -ErrorAction Stop
                         Write-Host "Successfully closed PowerShell process ID: $($_.Id)" -ForegroundColor Green
-                    } catch {
+                    }
+                    catch {
                         Write-Host "Failed to close PowerShell process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
                     }
                 }
                 Write-Host "All other PowerShell processes closed successfully." -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Host "No other PowerShell processes found to close." -ForegroundColor Gray
             }
         }
@@ -79,7 +84,8 @@ if ($closeTerminals -eq "y" -or $closeTerminals -eq "Y") {
         Write-Host "Warning: Could not close all terminal sessions: $($_.Exception.Message)" -ForegroundColor Yellow
         Write-Host "Continuing with installation..." -ForegroundColor Gray
     }
-} else {
+}
+else {
     Write-Host "`nInstallation cannot proceed without closing other terminal sessions." -ForegroundColor Red
     Write-Host "This is necessary to prevent conflicts during the installation process." -ForegroundColor Yellow
     Write-Host "`nPlease close all other terminal windows manually and run this script again." -ForegroundColor Cyan
@@ -251,8 +257,31 @@ if (-not (Test-Path -Path $PROFILE)) {
     Write-Host "Created PowerShell profile: $PROFILE" -ForegroundColor Green
 }
 
-# Step 7: Inject dynamic Oh My Posh init logic into profile
-Write-Host "`nStep 7: Append OMP init + theme switcher to profile" -ForegroundColor Cyan
+# Step 7: Ensure PSReadLine is up-to-date to prevent compatibility issues
+Write-Host "`nStep 7: Update PSReadLine to prevent compatibility issues" -ForegroundColor Cyan
+
+Write-Host "Updating PSReadLine to latest version..." -ForegroundColor Yellow
+try {
+    # Check current PSReadLine version
+    $currentVersion = (Get-Module PSReadLine -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
+    Write-Host "Current PSReadLine version: $currentVersion" -ForegroundColor Gray
+    
+    # Update PSReadLine to latest version
+    Install-Module PSReadLine -Force -ErrorAction Stop
+    Write-Host "PSReadLine updated successfully" -ForegroundColor Green
+    
+    # Verify new version
+    $newVersion = (Get-Module PSReadLine -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
+    Write-Host "New PSReadLine version: $newVersion" -ForegroundColor Green
+    
+}
+catch {
+    Write-Host "Could not update PSReadLine: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Continuing with installation..." -ForegroundColor Gray
+}
+
+# Step 8: Inject dynamic Oh My Posh init logic into profile
+Write-Host "`nStep 8: Append OMP init + theme switcher to profile" -ForegroundColor Cyan
 
 $initBlock = @"
 # BEGIN: Oh My Posh init block
@@ -354,16 +383,16 @@ else {
     Write-Host "Injected Oh My Posh logic into profile." -ForegroundColor Green
 }
 
-# Step 8: Sanitize profile
-Write-Host "`nStep 8: Sanitize PowerShell profile" -ForegroundColor Cyan
+# Step 9: Sanitize profile
+Write-Host "`nStep 9: Sanitize PowerShell profile" -ForegroundColor Cyan
 $content = Get-Content $PROFILE -Raw
 # Only remove extra blank lines, don't remove parameter declarations
 $fixed = $content -replace '(\r?\n){3,}', "`r`n`r`n"
 Set-Content -Path $PROFILE -Value $fixed -Encoding UTF8
 Write-Host "Profile sanitized." -ForegroundColor Green
 
-# Step 9: Run Update-OMPThemes.ps1
-Write-Host "`nStep 9: Run Update-OMPThemes.ps1" -ForegroundColor Cyan
+# Step 10: Run Update-OMPThemes.ps1
+Write-Host "`nStep 10: Run Update-OMPThemes.ps1" -ForegroundColor Cyan
 $updateScript = Join-Path $scriptDir "Update-OMPThemes.ps1"
 if (Test-Path $updateScript) {
     Write-Host "Running Update-OMPThemes.ps1..." -ForegroundColor Yellow
@@ -380,8 +409,8 @@ else {
     Write-ErrorLog -Script "Install-OMPEnv.ps1" -ErrorType "MISSING_FILE" -Description "Update-OMPThemes.ps1 not found in script directory"
 }
 
-# Step 10: Set PowerShell 7 as default shell
-Write-Host "`nStep 10: Set PowerShell 7 as default shell" -ForegroundColor Cyan
+# Step 11: Set PowerShell 7 as default shell
+Write-Host "`nStep 11: Set PowerShell 7 as default shell" -ForegroundColor Cyan
 
 # Set PowerShell 7 as default for .ps1 files
 try {
@@ -398,8 +427,8 @@ catch {
     Write-Host "Could not set PowerShell 7 as default for .ps1 files" -ForegroundColor Yellow
 }
 
-# Step 11: Refresh environment variables
-Write-Host "`nStep 11: Refresh environment variables" -ForegroundColor Cyan
+# Step 12: Refresh environment variables
+Write-Host "`nStep 12: Refresh environment variables" -ForegroundColor Cyan
 try {
     # Try to use refreshenv if available (from Chocolatey)
     refreshenv
@@ -414,15 +443,15 @@ catch {
     Write-Host "PATH manually refreshed." -ForegroundColor Green
 }
 
-# Step 12: Reload profile
-Write-Host "`nStep 12: Reload PowerShell profile" -ForegroundColor Cyan
+# Step 13: Reload profile
+Write-Host "`nStep 13: Reload PowerShell profile" -ForegroundColor Cyan
 . $PROFILE
 Write-Host "PowerShell profile reloaded." -ForegroundColor Green
 
-# Step 13: Restart terminal
-Write-Host "`nStep 13: Restart terminal" -ForegroundColor Cyan
+# Step 14: Restart terminal
+Write-Host "`nStep 14: Restart terminal" -ForegroundColor Cyan
 Start-Sleep -Seconds 2
 Start-Process wt.exe
 
-# Step 14: Close current terminal
+# Step 15: Close current terminal
 [System.Environment]::Exit(0)

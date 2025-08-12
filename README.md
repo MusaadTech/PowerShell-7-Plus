@@ -83,14 +83,15 @@ The script will:
 - **Step 4**: Configure POSH_THEMES_PATH environment variable
 - **Step 5**: Create oh-my-posh themes directory
 - **Step 6**: Create PowerShell profile
-- **Step 7**: Inject Oh My Posh initialization code
-- **Step 8**: Sanitize profile content
-- **Step 9**: Run theme updater
-- **Step 10**: Configure system defaults
-- **Step 11**: Refresh environment variables
-- **Step 12**: Reload PowerShell profile
-- **Step 13**: Restart terminal
-- **Step 14**: Close current terminal
+- **Step 7**: Update PSReadLine to prevent compatibility issues
+- **Step 8**: Inject Oh My Posh initialization code
+- **Step 9**: Sanitize profile content
+- **Step 10**: Run theme updater
+- **Step 11**: Configure system defaults
+- **Step 12**: Refresh environment variables
+- **Step 13**: Reload PowerShell profile
+- **Step 14**: Restart terminal
+- **Step 15**: Close current terminal
 
 ### `Reset-OMPEnv.ps1`
 **Complete uninstaller** with safety confirmation that removes everything:
@@ -114,6 +115,8 @@ The script will:
 The installer automatically handles all the complex setup:
 
 > **Note**: The installer no longer automatically sets PowerShell 7 as the default profile in Windows Terminal. Users can manually configure this through Windows Terminal settings if desired.
+
+> **PSReadLine Compatibility**: The installer automatically updates PSReadLine to the latest version to prevent the common `Get-PSReadLineKeyHandler` errors that occur with version mismatches.
 
 ### **PowerShell 7 Installation**
 - Uses winget for silent installation
@@ -206,6 +209,17 @@ Set-OMPTheme "nonexistent-theme"
 ```powershell
 # Complete reset (with safety confirmation)
 .\Reset-OMPEnv.ps1
+```
+
+#### "Get-PSReadLineKeyHandler positional parameter errors"
+```powershell
+# This error occurs with PSReadLine version mismatches
+# The installer now automatically fixes this by updating PSReadLine
+# If you still see errors, manually run:
+Install-Module PSReadLine -Force
+
+# Or re-run the installer:
+.\Install-OMPEnv.ps1
 ```
 
 ### Error Logging
