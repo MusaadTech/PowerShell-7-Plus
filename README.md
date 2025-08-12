@@ -7,15 +7,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2B-red.svg)](https://www.microsoft.com/windows)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🙏 Acknowledgments
-
-This project builds upon the excellent work of:
-
-- **[Oh My Posh](https://ohmyposh.dev/)** by [Jan De Dobbeleer](https://github.com/JanDeDobbeleer) - The amazing prompt customization engine that powers beautiful, informative, and highly customizable terminal prompts
-- **[PowerShell 7](https://github.com/PowerShell/PowerShell)** by Microsoft - The modern cross-platform shell that brings the power of .NET to command-line automation
-- **[Windows Terminal](https://github.com/microsoft/terminal)** by Microsoft - The modern Windows terminal that provides a fast, efficient, and beautiful command-line experience
-
-## Why PowerShell 7 + Oh My Posh?
+R## What You Get
 
 Transform your terminal into a **modern, powerful development environment**:
 
@@ -25,35 +17,26 @@ Transform your terminal into a **modern, powerful development environment**:
 - **Smart Path Display**: Folder icons and intelligent path truncation
 - **100+ Beautiful Themes**: From minimal to feature-rich, dark to light
 - **Performance Optimized**: Fast rendering with minimal startup impact
-- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Cross-Platform**: Supports Windows, macOS, and Linux commands
 - **Terminal Auto-Completion**: PowerShell 7 provides intelligent, context-aware auto completion for commands, parameters, file paths, and even custom functions—making it easy to discover available options and dramatically speeding up your workflow
 
-A comprehensive PowerShell automation suite that transforms your Windows terminal into a modern, beautiful, and highly functional development environment. This project automates the complete setup of **PowerShell 7** and **Oh My Posh** with advanced theming capabilities.
-
-## What This Project Adds
-
-This project builds on the foundations of Oh My Posh and PowerShell 7, delivering a fully automated setup and a suite of enhancements for a streamlined, modern terminal experience. Key features include:
-
 ### **One-Click Setup**
-- **Automated Installation**: Installs PowerShell 7 and Oh My Posh silently.
-- **Intelligent Path Detection**: Locates and configures Oh My Posh in your PATH.
-- **Profile Management**: Creates and updates your PowerShell profile automatically.
-- **Theme Integration**: Installs and manages a local theme collection with dynamic switching.
+- **Automated Installation**: Installs PowerShell 7 and Oh My Posh silently
+- **Intelligent Path Detection**: Locates and configures Oh My Posh in your PATH
+- **Profile Management**: Creates and updates your PowerShell profile automatically
+- **Theme Integration**: Installs and manages a local theme collection with dynamic switching
 
 ### **Advanced Theming**
-- **100+ Built-in Themes**: Access the full Oh My Posh theme library locally.
-- **Dynamic Theme Switching**: Instantly change themes with the `Set-OMPTheme` function.
-- **Automatic Updates**: Scheduled updates keep your themes current.
-- **Offline Access**: All themes are stored locally for use without an internet connection.
+- **100+ Built-in Themes**: Access the full Oh My Posh theme library locally
+- **Dynamic Theme Switching**: Instantly change themes with the `Set-OMPTheme` function or `theme` alias for simplicity
+- **Automatic Updates**: Scheduled updates keep your themes current
+- **Offline Access**: All themes are stored locally for use without an internet connection
 
 ### **System Integration**
-- **Windows Terminal Support**: Automatically configures PowerShell 7 as the default profile.
-- **File Association**: Sets PowerShell 7 as the default for `.ps1` scripts.
-- **Scheduled Tasks**: Automates theme updates using Windows Task Scheduler.
-- **Clean Uninstall**: Easily reset your environment with `Reset-OMPEnv.ps1`.
-
-### **Productivity Boost**
-- **Powerful Tab Completion**: Take advantage of PowerShell 7's advanced auto-completion for commands, parameters, file paths, and even custom functions like `Set-OMPTheme`. This dramatically speeds up your workflow and reduces errors.
+- **Windows Terminal Support**: Automatically configures PowerShell 7 as the default profile
+- **File Association**: Sets PowerShell 7 as the default for `.ps1` scripts
+- **Scheduled Tasks**: Automates theme updates using Windows Task Scheduler
+- **Clean Uninstall**: Easily reset your environment with `Reset-OMPEnv.ps1`
 
 ## Quick Start
 
@@ -66,8 +49,8 @@ This project builds on the foundations of Oh My Posh and PowerShell 7, deliverin
 
 1. **Clone or download** this repository:
    ```powershell
-   git clone https://github.com/MusaadTech/terminal-customization.git
-   cd terminal-customization
+   git clone https://github.com/MusaadTech/PowerShell-7-Plus.git
+   cd PowerShell-7-Plus
    ```
 
 2. **Run the installer**:
@@ -88,6 +71,68 @@ The script will:
 - ✅ Set up theme management
 - ✅ Configure Windows Terminal
 - ✅ Launch your new environment
+
+## Scripts Overview
+
+### `Install-OMPEnv.ps1`
+**Main installation script** that sets up your complete environment:
+
+- **Step 1**: Install PowerShell 7 via winget
+- **Step 2**: Install Oh My Posh via winget
+- **Step 3**: Locate and configure Oh My Posh PATH
+- **Step 4**: Configure POSH_THEMES_PATH environment variable
+- **Step 5**: Create oh-my-posh themes directory
+- **Step 6**: Create PowerShell profile
+- **Step 7**: Inject Oh My Posh initialization code
+- **Step 8**: Sanitize profile content
+- **Step 9**: Run theme updater
+- **Step 10**: Configure system defaults
+- **Step 11**: Refresh environment variables
+- **Step 12**: Restart terminal with profile auto-loading
+- **Step 13**: Close current terminal
+
+### `Reset-OMPEnv.ps1`
+**Complete uninstaller** with safety confirmation that removes everything:
+
+- **Safety First**: Requires typing 'YES' to confirm (prevents accidental execution)
+- **Complete Cleanup**: Removes Oh My Posh themes directory
+- **System Reset**: Unregisters scheduled tasks and removes PowerShell profile
+- **Software Removal**: Uninstalls Oh My Posh and PowerShell 7
+- **Path Cleanup**: Removes Oh My Posh entries from user PATH
+- **Terminal Reset**: Resets Windows Terminal default profile settings
+
+### `Update-OMPThemes.ps1`
+**Theme management script** with smart updates:
+
+- **Smart Downloads**: Downloads latest themes from GitHub
+- **Efficient Updates**: Tracks theme count to avoid unnecessary downloads
+- **Automated Scheduling**: Creates scheduled task for weekly updates
+- **Progress Tracking**: Provides progress indicators during download
+
+## Installation Details
+
+The installer automatically handles all the complex setup:
+
+### **PowerShell 7 Installation**
+- Uses winget for silent installation
+- Sets as default for `.ps1` script execution
+- Configures Windows Terminal integration
+
+### **Oh My Posh Setup**
+- Automatic PATH detection and configuration
+- Sets up POSH_THEMES_PATH environment variable
+- Creates local themes directory structure
+
+### **Profile Configuration**
+- Creates PowerShell profile if it doesn't exist
+- Injects Oh My Posh initialization code
+- Adds theme switching function and alias
+- Sanitizes profile content for optimal performance
+
+### **Windows Terminal Integration**
+- Sets PowerShell 7 as default profile
+- Configures automatic profile loading
+- Ensures new terminals load Oh My Posh automatically
 
 ## Theme Management
 
@@ -123,81 +168,9 @@ theme "jandedobbeleer.omp.json"
 - **`dracula`** - Dark theme with purple accents
 - **`catppuccin_mocha`** - Beautiful dark theme
 
-## Project Structure
+## Troubleshooting & Error Handling
 
-```
-📂 terminal-customization/
-├── 🗒️ Install-OMPEnv.ps1           # Main installer script
-├── 🗒️ Reset-OMPEnv.ps1             # Complete uninstaller
-├── 🗒️ Update-OMPThemes.ps1         # Theme updater with scheduler
-├── 📇 README.md                    # This file
-├── ⚖️ LICENSE                      # MIT License
-├── 🗒️ .gitignore                   # Git ignore rules
-├── 📄 errors.log                   # Error tracking log (auto-generated)
-└── 📂 oh-my-posh/
-    ├── 📂 themes/                  # Local theme collection (100+ themes)
-    ├── 🗒️theme-count.log           # Theme count tracking
-    └── 🗒️update.log                # Update history
-```
-
-## Scripts Overview
-
-### `Install-OMPEnv.ps1`
-**Main installation script** that sets up your complete environment:
-
-- **Step 1**: Install PowerShell 7 via winget
-- **Step 2**: Install Oh My Posh via winget
-- **Step 3**: Locate and configure Oh My Posh PATH
-- **Step 3.5**: Configure POSH_THEMES_PATH environment variable
-- **Step 4**: Create oh-my-posh themes directory
-- **Step 5**: Create PowerShell profile
-- **Step 6**: Inject Oh My Posh initialization code
-- **Step 7**: Sanitize profile content
-- **Step 8**: Run theme updater
-- **Step 9**: Configure system defaults
-- **Step 10**: Refresh environment variables
-- **Step 11**: Reload profile
-- **Step 12**: Restart terminal
-- **Step 13**: Close current terminal
-
-### `Reset-OMPEnv.ps1`
-**Complete uninstaller** that removes everything:
-
-- Removes Oh My Posh themes directory
-- Unregisters scheduled tasks
-- Removes PowerShell profile
-- Uninstalls Oh My Posh and PowerShell 7
-- Cleans up PATH entries
-- Resets Windows Terminal settings
-
-### `Update-OMPThemes.ps1`
-**Theme management script** with smart updates:
-
-- Downloads latest themes from GitHub
-- Tracks theme count to avoid unnecessary downloads
-- Creates scheduled task for weekly updates
-- Provides progress indicators during download
-
-## Advanced Usage
-
-### Manual Theme Updates
-```powershell
-# Update themes manually
-.\Update-OMPThemes.ps1
-```
-
-### Custom Theme Configuration
-```powershell
-# Edit your PowerShell profile
-notepad $PROFILE
-
-# The profile contains:
-# - Oh My Posh initialization
-# - Set-OMPTheme function
-# - Your custom configurations
-```
-
-### Troubleshooting
+### Common Issues
 
 #### "Oh My Posh not available in PATH"
 ```powershell
@@ -222,22 +195,22 @@ Set-OMPTheme "nonexistent-theme"
 
 #### Reset Everything
 ```powershell
-# Complete reset
+# Complete reset (with safety confirmation)
 .\Reset-OMPEnv.ps1
 ```
 
-## Error Logging
+### Error Logging
 
 The project includes comprehensive error logging to help with troubleshooting:
 
-### Error Log File
+#### Error Log File
 - **Location**: `errors.log` (in project root)
 - **Format**: `[TIMESTAMP] [SCRIPT] [ERROR_TYPE] - [DESCRIPTION]`
 - **Auto-generated**: Created automatically when the first error occurs
 - **Header**: Includes descriptive header when first created
 - **Encoding**: UTF-8 format for proper character support
 
-### Error Types Tracked
+#### Error Types Tracked
 - **`WINGET_ERROR`** - Package installation failures
 - **`PATH_ERROR`** - Oh My Posh PATH detection issues
 - **`INSTALLATION_ERROR`** - General installation problems
@@ -247,7 +220,7 @@ The project includes comprehensive error logging to help with troubleshooting:
 - **`UNINSTALL_ERROR`** - Uninstallation problems
 - **`MISSING_FILE`** - Required files not found
 
-### Viewing Error Logs
+#### Viewing Error Logs
 ```powershell
 # View recent errors
 Get-Content errors.log -Tail 10
@@ -259,7 +232,26 @@ Select-String -Path errors.log -Pattern "WINGET_ERROR"
 Clear-Content errors.log
 ```
 
-## Scheduled Updates
+## Advanced Usage
+
+### Manual Theme Updates
+```powershell
+# Update themes manually
+.\Update-OMPThemes.ps1
+```
+
+### Custom Theme Configuration
+```powershell
+# Edit your PowerShell profile
+notepad $PROFILE
+
+# The profile contains:
+# - Oh My Posh initialization
+# - Set-OMPTheme function
+# - Your custom configurations
+```
+
+### Scheduled Updates Management
 
 The installer can set up automatic theme updates:
 
@@ -277,6 +269,23 @@ Get-ScheduledTask -TaskName "Update Oh My Posh Themes"
 Unregister-ScheduledTask -TaskName "Update Oh My Posh Themes" -Confirm:$false
 ```
 
+## Project Structure
+
+```
+📂 PowerShell-7-Plus/
+├── 🗒️ Install-OMPEnv.ps1           # Main installer script
+├── 🗒️ Reset-OMPEnv.ps1             # Complete uninstaller
+├── 🗒️ Update-OMPThemes.ps1         # Theme updater with scheduler
+├── 📇 README.md                    # This file
+├── ⚖️ LICENSE                      # MIT License
+├── 🗒️ .gitignore                   # Git ignore rules
+├── 📄 errors.log                   # Error tracking log (auto-generated)
+└── 📂 oh-my-posh/
+    ├── 📂 themes/                  # Local theme collection (100+ themes)
+    ├── 🗒️theme-count.log           # Theme count tracking
+    └── 🗒️update.log                # Update history
+```
+
 ## Contributing
 
 We welcome contributions! Here's how you can help:
@@ -290,8 +299,8 @@ We welcome contributions! Here's how you can help:
 ### Development Setup
 ```powershell
 # Clone the repository
-git clone https://github.com/MusaadTech/terminal-customization.git
-cd terminal-customization
+git clone https://github.com/MusaadTech/PowerShell-7-Plus.git
+cd PowerShell-7-Plus
 
 # Test the installer
 .\Install-OMPEnv.ps1
@@ -300,9 +309,11 @@ cd terminal-customization
 .\Reset-OMPEnv.ps1
 ```
 
-## License
+## Support
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+- **Issues**: [GitHub Issues](https://github.com/MusaadTech/PowerShell-7-Plus/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/MusaadTech/PowerShell-7-Plus/discussions)
+- **Documentation**: [Oh My Posh Docs](https://ohmyposh.dev/docs/)
 
 ## Project Status
 
@@ -312,11 +323,17 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **Windows Version**: 10/11 (64-bit)
 - **Oh My Posh Version**: Latest
 
-## Support
+## License
 
-- **Issues**: [GitHub Issues](https://github.com/MusaadTech/terminal-customization/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/MusaadTech/terminal-customization/discussions)
-- **Documentation**: [Oh My Posh Docs](https://ohmyposh.dev/docs/)
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+This project builds upon the excellent work of:
+
+- **[Oh My Posh](https://ohmyposh.dev/)** by [Jan De Dobbeleer](https://github.com/JanDeDobbeleer) - The amazing prompt customization engine that powers beautiful, informative, and highly customizable terminal prompts
+- **[PowerShell 7](https://github.com/PowerShell/PowerShell)** by Microsoft - The modern cross-platform shell that brings the power of .NET to command-line automation
+- **[Windows Terminal](https://github.com/microsoft/terminal)** by Microsoft - The modern Windows terminal that provides a fast, efficient, and beautiful command-line experience
 
 ---
 
