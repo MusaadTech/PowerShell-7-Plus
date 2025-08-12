@@ -7,36 +7,22 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2B-red.svg)](https://www.microsoft.com/windows)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-R## What You Get
+## Preview
 
-Transform your terminal into a **modern, powerful development environment**:
+See PowerShell 7 Plus in action! The screenshot below demonstrates the beautiful themes and enhanced functionality:
 
-### **Enhanced Development Experience**
-- **Git Integration**: Real-time Git status, branch info, and commit details
-- **Environment Awareness**: Python virtual environments, Node.js versions, and more
-- **Smart Path Display**: Folder icons and intelligent path truncation
-- **100+ Beautiful Themes**: From minimal to feature-rich, dark to light
-- **Performance Optimized**: Fast rendering with minimal startup impact
-- **Cross-Platform**: Supports Windows, macOS, and Linux commands
-- **Terminal Auto-Completion**: PowerShell 7 provides intelligent, context-aware auto completion for commands, parameters, file paths, and even custom functions—making it easy to discover available options and dramatically speeding up your workflow
+![PowerShell 7 Plus Demo](assets/PowerShell-7-Plus-sample.png)
 
-### **One-Click Setup**
-- **Automated Installation**: Installs PowerShell 7 and Oh My Posh silently
-- **Intelligent Path Detection**: Locates and configures Oh My Posh in your PATH
-- **Profile Management**: Creates and updates your PowerShell profile automatically
-- **Theme Integration**: Installs and manages a local theme collection with dynamic switching
+**What you see:**
+- **Theme Switching**: Instant theme changes with `theme <name>`
+- **Rich Prompts**: Date, time, username, hostname, system stats
+- **Color Coding**: Beautiful, readable terminal experience
+- **System Information**: RAM, CPU, execution time display
+- **Multiple Themes**: Tokyo, Dracula, YS, Velvet, Zash, TheCyberDen, Unicorn, Star, AgnosterPlus, XToys, WholeSpace, and 109 more
 
-### **Advanced Theming**
-- **100+ Built-in Themes**: Access the full Oh My Posh theme library locally
-- **Dynamic Theme Switching**: Instantly change themes with the `Set-OMPTheme` function or `theme` alias for simplicity
-- **Automatic Updates**: Scheduled updates keep your themes current
-- **Offline Access**: All themes are stored locally for use without an internet connection
+**Try these themes**: `theme tokyo`, `theme dracula`, `theme velvet`, `theme zash`, `theme unicorn`, `theme star`, `theme agnosterplus`, `theme wholespace`
 
-### **System Integration**
-- **Windows Terminal Integration**: Installs and configures PowerShell 7 for use in Windows Terminal. User retain full control—set PowerShell 7 as your default profile in Windows Terminal settings whenever you prefer.
-- **File Association**: Sets PowerShell 7 as the default for `.ps1` scripts
-- **Scheduled Tasks**: Automates theme updates using Windows Task Scheduler
-- **Clean Uninstall**: Easily reset your environment with `Reset-OMPEnv.ps1`
+> **Note**: The preview image shows a real PowerShell 7 Plus session with multiple theme demonstrations. Users can switch between 100+ available themes instantly using the `theme` command.
 
 ## Quick Start
 
@@ -72,6 +58,37 @@ The script will:
 - ✅ Install PowerShell 7 (user can set default profile manually)
 - ✅ Launch your new environment
 
+## What You Get
+
+Transform your terminal into a **modern, powerful development environment**:
+
+### **Enhanced Development Experience**
+- **Git Integration**: Real-time Git status, branch info, and commit details
+- **Environment Awareness**: Python virtual environments, Node.js versions, and more
+- **Smart Path Display**: Folder icons and intelligent path truncation
+- **100+ Beautiful Themes**: From minimal to feature-rich, dark to light
+- **Performance Optimized**: Fast rendering with minimal startup impact
+- **Cross-Platform**: Supports Windows, macOS, and Linux commands
+- **Terminal Auto-Completion**: PowerShell 7 provides intelligent, context-aware auto completion for commands, parameters, file paths, and even custom functions—making it easy to discover available options and dramatically speeding up your workflow
+
+### **One-Click Setup**
+- **Automated Installation**: Installs PowerShell 7 and Oh My Posh silently
+- **Intelligent Path Detection**: Locates and configures Oh My Posh in your PATH
+- **Profile Management**: Creates and updates your PowerShell profile automatically
+- **Theme Integration**: Installs and manages a local theme collection with dynamic switching
+
+### **Advanced Theming**
+- **100+ Built-in Themes**: Access the full Oh My Posh theme library locally
+- **Dynamic Theme Switching**: Instantly change themes with the `Set-OMPTheme` function or `theme` alias for simplicity
+- **Automatic Updates**: Scheduled updates keep your themes current
+- **Offline Access**: All themes are stored locally for use without an internet connection
+
+### **System Integration**
+- **Windows Terminal Integration**: Installs and configures PowerShell 7 for use in Windows Terminal. User retain full control—set PowerShell 7 as your default profile in Windows Terminal settings whenever you prefer.
+- **File Association**: Sets PowerShell 7 as the default for `.ps1` scripts
+- **Scheduled Tasks**: Automates theme updates using Windows Task Scheduler
+- **Clean Uninstall**: Easily reset your environment with `Reset-OMPEnv.ps1`
+
 ## Scripts Overview
 
 ### `Install-OMPEnv.ps1`
@@ -92,6 +109,8 @@ The script will:
 - **Step 13**: Reload PowerShell profile
 - **Step 14**: Restart terminal
 - **Step 15**: Close current terminal
+
+**Total: 15 steps (1-15)**
 
 ### `Reset-OMPEnv.ps1`
 **Complete uninstaller** with safety confirmation that removes everything:
@@ -168,189 +187,112 @@ theme dracula
 
 # Or use the full function name
 Set-OMPTheme "jandedobbeleer"
-
-# You can also use the full filename if preferred
-theme "jandedobbeleer.omp.json"
 ```
 
-### Popular Theme Examples
-- **`jandedobbeleer`** - Clean, modern default
-- **`agnoster`** - Classic powerline style
-- **`powerlevel10k_modern`** - Feature-rich modern prompt
-- **`dracula`** - Dark theme with purple accents
-- **`catppuccin_mocha`** - Beautiful dark theme
+### Theme Management
+The installer provides comprehensive theme management with preference persistence:
 
-## Troubleshooting & Error Handling
+#### Switching Themes
+Use the built-in `theme` alias to switch themes instantly:
+
+```powershell
+# Switch themes (recommended)
+theme jandedobbeleer
+theme agnoster
+theme powerlevel10k_modern
+theme dracula
+
+# Or use the full function name
+Set-OMPTheme "jandedobbeleer"
+```
+
+#### Theme Persistence
+Your theme choice is automatically saved and loaded on future sessions:
+
+```powershell
+# Check current theme preference
+theme current
+
+# Reset to default theme (immediately applies default theme)
+theme reset
+```
+
+#### Available Commands
+- **`theme <name>`** - Switch to a theme and save preference
+- **`theme current`** - Show your current theme preference
+- **`theme reset`** - Reset to default theme and reload profile immediately
+
+### Popular Theme Examples
+```powershell
+# Minimal and clean
+theme jandedobbeleer
+theme agnoster
+
+# Feature-rich with system info
+theme powerlevel10k_modern
+theme dracula
+
+# Unique and creative
+theme tokyo
+theme velvet
+theme unicorn
+theme wholespace
+```
+
+## Troubleshooting
 
 ### Common Issues
 
-#### "Oh My Posh not available in PATH"
-```powershell
-# Check if Oh My Posh is installed
-Get-Command oh-my-posh.exe -ErrorAction SilentlyContinue
-
-# If not found, re-run the installer
-.\Install-OMPEnv.ps1
-```
-
-#### "Theme not found"
-```powershell
-# List available themes (just the names)
-Get-ChildItem ".\oh-my-posh\themes\" -Filter "*.omp.json" | ForEach-Object { $_.BaseName }
-
-# Or use the Set-OMPTheme function which will show available themes
-Set-OMPTheme "nonexistent-theme"
-
-# Update themes if needed
-.\Update-OMPThemes.ps1
-```
-
-#### Reset Everything
-```powershell
-# Complete reset (with safety confirmation)
-.\Reset-OMPEnv.ps1
-```
-
 #### "Get-PSReadLineKeyHandler positional parameter errors"
+This error occurs when there's a version mismatch between PowerShell and PSReadLine:
+
 ```powershell
-# This error occurs with PSReadLine version mismatches
-# The installer now automatically fixes this by updating PSReadLine
-# If you still see errors, manually run:
+# Quick fix - update PSReadLine
 Install-Module PSReadLine -Force
 
 # Or re-run the installer:
 .\Install-OMPEnv.ps1
 ```
 
-### Error Logging
+#### Theme switching not working
+If themes aren't loading properly:
 
-The project includes comprehensive error logging to help with troubleshooting:
-
-#### Error Log File
-- **Location**: `errors.log` (in project root)
-- **Format**: `[TIMESTAMP] [SCRIPT] [ERROR_TYPE] - [DESCRIPTION]`
-- **Auto-generated**: Created automatically when the first error occurs
-- **Header**: Includes descriptive header when first created
-- **Encoding**: UTF-8 format for proper character support
-
-#### Error Types Tracked
-- **`WINGET_ERROR`** - Package installation failures
-- **`PATH_ERROR`** - Oh My Posh PATH detection issues
-- **`INSTALLATION_ERROR`** - General installation problems
-- **`API_ERROR`** - GitHub API connection issues
-- **`DOWNLOAD_ERROR`** - Theme download failures
-- **`THEME_UPDATE_ERROR`** - Theme update script issues
-- **`UNINSTALL_ERROR`** - Uninstallation problems
-- **`MISSING_FILE`** - Required files not found
-
-#### Viewing Error Logs
 ```powershell
-# View recent errors
-Get-Content errors.log -Tail 10
+# Check if themes directory exists
+Test-Path ".\oh-my-posh\themes\"
 
-# Search for specific error types
-Select-String -Path errors.log -Pattern "WINGET_ERROR"
-
-# Clear error log (if needed)
-Clear-Content errors.log
-```
-
-## Advanced Usage
-
-### Manual Theme Updates
-```powershell
-# Update themes manually
+# Run theme updater to download themes
 .\Update-OMPThemes.ps1
+
+# Check current theme preference
+theme current
 ```
 
-### Custom Theme Configuration
+#### Oh My Posh not found
+If you get "Oh My Posh not available" errors:
+
 ```powershell
-# Edit your PowerShell profile
-notepad $PROFILE
+# Check PATH
+$env:PATH -split ";" | Where-Object { $_ -like "*oh-my-posh*" }
 
-# The profile contains:
-# - Oh My Posh initialization
-# - Set-OMPTheme function
-# - Your custom configurations
-```
-
-### Scheduled Updates Management
-
-The installer can set up automatic theme updates:
-
-- **Frequency**: Weekly (Sundays at 10:00 AM)
-- **Task Name**: "Update Oh My Posh Themes"
-- **Scope**: User-level scheduled task
-- **Requires**: Administrator privileges for setup
-
-To manage scheduled tasks:
-```powershell
-# View scheduled task
-Get-ScheduledTask -TaskName "Update Oh My Posh Themes"
-
-# Remove scheduled task
-Unregister-ScheduledTask -TaskName "Update Oh My Posh Themes" -Confirm:$false
-```
-
-## Project Structure
-
-```
-📂 PowerShell-7-Plus/
-├── 🗒️ Install-OMPEnv.ps1           # Main installer script
-├── 🗒️ Reset-OMPEnv.ps1             # Complete uninstaller
-├── 🗒️ Update-OMPThemes.ps1         # Theme updater with scheduler
-├── 📇 README.md                    # This file
-├── ⚖️ LICENSE                      # MIT License
-├── 🗒️ .gitignore                   # Git ignore rules
-├── 📄 errors.log                   # Error tracking log (auto-generated)
-└── 📂 oh-my-posh/
-    ├── 📂 themes/                  # Local theme collection (100+ themes)
-    ├── 🗒️theme-count.log           # Theme count tracking
-    └── 🗒️update.log                # Update history
-```
-
-## Contributing
-
-We welcome contributions! Here's how you can help:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Setup
-```powershell
-# Clone the repository
-git clone https://github.com/MusaadTech/PowerShell-7-Plus.git
-cd PowerShell-7-Plus
-
-# Test the installer
+# Re-run installer to fix PATH issues
 .\Install-OMPEnv.ps1
-
-# Test the reset
-.\Reset-OMPEnv.ps1
 ```
 
-## Support
+#### Theme preference file location
+Theme preferences are stored in the oh-my-posh directory:
+```powershell
+# Location of theme preference file
+.\oh-my-posh\.theme-preference
 
-- **Issues**: [GitHub Issues](https://github.com/MusaadTech/PowerShell-7-Plus/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/MusaadTech/PowerShell-7-Plus/discussions)
-- **Documentation**: [Oh My Posh Docs](https://ohmyposh.dev/docs/)
+# If you need to manually reset your theme preference:
+Remove-Item ".\oh-my-posh\.theme-preference" -Force
 
-## Project Status
+# Or use the built-in command:
+theme reset
+```
 
-- **Version**: 1.0.0
-- **Last Updated**: December 2024
-- **PowerShell Version**: 7.0+
-- **Windows Version**: 10/11 (64-bit)
-- **Oh My Posh Version**: Latest
-
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 This project builds upon the excellent work of:
 
@@ -358,6 +300,22 @@ This project builds upon the excellent work of:
 - **[PowerShell 7](https://github.com/PowerShell/PowerShell)** by Microsoft - The modern cross-platform shell that brings the power of .NET to command-line automation
 - **[Windows Terminal](https://github.com/microsoft/terminal)** by Microsoft - The modern Windows terminal that provides a fast, efficient, and beautiful command-line experience
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+If you find this project helpful, please give it a star! For issues and questions:
+
+- **GitHub Issues**: [Create an issue](https://github.com/MusaadTech/PowerShell-7-Plus/issues)
+- **Documentation**: Check this README and the troubleshooting section above
+- **Reinstall**: If all else fails, run `.\Reset-OMPEnv.ps1` and then `.\Install-OMPEnv.ps1`
+
 ---
 
-**Made with ❤️ for the PowerShell community**
+**Enjoy your enhanced PowerShell experience!**

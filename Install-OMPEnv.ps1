@@ -1,99 +1,6 @@
 Write-Host "Setting up PowerShell 7 + Oh My Posh environment..." -ForegroundColor DarkRed
 
-# Step 0: Ask user to close all open terminal sessions
-Write-Host "`nStep 0: Close all open terminal sessions" -ForegroundColor Cyan
-$closeTerminals = Read-Host "Do you want to close all open terminal sessions? (y/n)"
 
-if ($closeTerminals -eq "y" -or $closeTerminals -eq "Y") {
-    Write-Host "Closing all open terminal sessions..." -ForegroundColor Yellow
-    
-    try {
-        # Get current process ID and session ID to avoid closing the current terminal
-        $currentPID = $PID
-        $currentSessionId = [System.Diagnostics.Process]::GetCurrentProcess().SessionId
-        
-        Write-Host "Current process ID: $currentPID" -ForegroundColor Gray
-        Write-Host "Current session ID: $currentSessionId" -ForegroundColor Gray
-        
-        # Find all Windows Terminal processes, but exclude the current session
-        $allTerminalProcesses = Get-Process -Name "WindowsTerminal" -ErrorAction SilentlyContinue
-        
-        if ($allTerminalProcesses) {
-            Write-Host "Found $($allTerminalProcesses.Count) Windows Terminal processes total." -ForegroundColor Gray
-            
-            # Filter out processes from the current session
-            $terminalProcessesToClose = $allTerminalProcesses | Where-Object { 
-                $_.SessionId -ne $currentSessionId
-            }
-            
-            if ($terminalProcessesToClose) {
-                Write-Host "Found $($terminalProcessesToClose.Count) terminal sessions from other sessions to close. Closing them..." -ForegroundColor Yellow
-                $terminalProcessesToClose | ForEach-Object {
-                    Write-Host "Closing terminal process ID: $($_.Id) from session: $($_.SessionId)" -ForegroundColor Gray
-                    try {
-                        Stop-Process -Id $_.Id -Force -ErrorAction Stop
-                        Write-Host "Successfully closed terminal process ID: $($_.Id)" -ForegroundColor Green
-                    }
-                    catch {
-                        Write-Host "Failed to close terminal process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
-                    }
-                }
-                Write-Host "All other terminal sessions closed successfully." -ForegroundColor Green
-            }
-            else {
-                Write-Host "No other terminal sessions found to close." -ForegroundColor Gray
-            }
-        }
-        else {
-            Write-Host "No Windows Terminal processes found." -ForegroundColor Gray
-        }
-        
-        # Also try to close any other PowerShell processes from other sessions
-        $allPowerShellProcesses = Get-Process -Name "powershell", "pwsh" -ErrorAction SilentlyContinue
-        
-        if ($allPowerShellProcesses) {
-            Write-Host "Found $($allPowerShellProcesses.Count) PowerShell processes total." -ForegroundColor Gray
-            
-            # Filter out processes from the current session
-            $powerShellProcessesToClose = $allPowerShellProcesses | Where-Object { 
-                $_.SessionId -ne $currentSessionId
-            }
-            
-            if ($powerShellProcessesToClose) {
-                Write-Host "Found $($powerShellProcessesToClose.Count) PowerShell processes from other sessions to close. Closing them..." -ForegroundColor Yellow
-                $powerShellProcessesToClose | ForEach-Object {
-                    Write-Host "Closing PowerShell process ID: $($_.Id) from session: $($_.SessionId)" -ForegroundColor Gray
-                    try {
-                        Stop-Process -Id $_.Id -Force -ErrorAction Stop
-                        Write-Host "Successfully closed PowerShell process ID: $($_.Id)" -ForegroundColor Green
-                    }
-                    catch {
-                        Write-Host "Failed to close PowerShell process ID: $($_.Id): $($_.Exception.Message)" -ForegroundColor Yellow
-                    }
-                }
-                Write-Host "All other PowerShell processes closed successfully." -ForegroundColor Green
-            }
-            else {
-                Write-Host "No other PowerShell processes found to close." -ForegroundColor Gray
-            }
-        }
-        
-        Start-Sleep -Seconds 1
-    }
-    catch {
-        Write-Host "Warning: Could not close all terminal sessions: $($_.Exception.Message)" -ForegroundColor Yellow
-        Write-Host "Continuing with installation..." -ForegroundColor Gray
-    }
-}
-else {
-    Write-Host "`nInstallation cannot proceed without closing other terminal sessions." -ForegroundColor Red
-    Write-Host "This is necessary to prevent conflicts during the installation process." -ForegroundColor Yellow
-    Write-Host "`nPlease close all other terminal windows manually and run this script again." -ForegroundColor Cyan
-    Write-Host "`nApologies for the inconvenience, but this step is required for a successful installation." -ForegroundColor Magenta
-    Write-Host "`nPress any key to exit..." -ForegroundColor Gray
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    [System.Environment]::Exit(1)
-}
 
 # Define script and theme paths (relative to script location)
 $scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
@@ -237,8 +144,13 @@ Write-Host "`nStep 4: Configure POSH_THEMES_PATH" -ForegroundColor Cyan
 [Environment]::SetEnvironmentVariable("POSH_THEMES_PATH", $themesDir, "User")
 Write-Host "Set POSH_THEMES_PATH to: $themesDir" -ForegroundColor Green
 
-# Also set it for current session
+# Set OMP_BASE_DIR to point to our project oh-my-posh directory
+[Environment]::SetEnvironmentVariable("OMP_BASE_DIR", $ompBaseDir, "User")
+Write-Host "Set OMP_BASE_DIR to: $ompBaseDir" -ForegroundColor Green
+
+# Also set them for current session
 $env:POSH_THEMES_PATH = $themesDir
+$env:OMP_BASE_DIR = $ompBaseDir
 
 # Step 5: Create oh-my-posh themes directory
 Write-Host "`nStep 5: Create oh-my-posh themes directory" -ForegroundColor Cyan
@@ -285,39 +197,175 @@ Write-Host "`nStep 8: Append OMP init + theme switcher to profile" -ForegroundCo
 
 $initBlock = @"
 # BEGIN: Oh My Posh init block
+
+# Use environment variables for paths (set by installer)
+`$ompBaseDir = `$env:OMP_BASE_DIR
+`$themesDir = `$env:POSH_THEMES_PATH
+
+# Fallback if environment variables not set
+if (-not `$ompBaseDir) {
+    `$ompBaseDir = Join-Path (Split-Path -Path `$PROFILE -Parent) "oh-my-posh"
+}
+if (-not `$themesDir) {
+    `$themesDir = Join-Path `$ompBaseDir "themes"
+}
+
+# Welcome message (only show first time)
+`$welcomeFlagFile = Join-Path `$ompBaseDir ".welcome-shown"
+if (-not (Test-Path `$welcomeFlagFile)) {
+    Write-Host "`nWelcome to PowerShell 7 Plus!" -ForegroundColor Cyan
+    Write-Host "Thank you for using our enhanced PowerShell environment!" -ForegroundColor Green
+    Write-Host "`nTheme Management Commands:" -ForegroundColor Yellow
+    Write-Host "  > theme <name>     - Switch to a theme (e.g., theme dracula)" -ForegroundColor Gray
+    Write-Host "  > theme current    - Show current theme preference" -ForegroundColor Gray
+    Write-Host "  > theme reset      - Reset to default theme" -ForegroundColor Gray
+    Write-Host "  > theme            - Show help and available themes" -ForegroundColor Gray
+    Write-Host "`nEnjoy your enhanced PowerShell experience!" -ForegroundColor Magenta
+    
+    # Mark welcome as shown
+    Set-Content -Path `$welcomeFlagFile -Value (Get-Date -Format "yyyy-MM-dd HH:mm:ss") -Encoding UTF8
+}
+
+# Initialize logging
+`$logFile = Join-Path `$ompBaseDir "profile.log"
+
 try {
-    `$ompExe = Get-Command "oh-my-posh.exe" -ErrorAction Stop
+    # Refresh environment variables to ensure PATH is current
+    `$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    
+    # Try multiple methods to find oh-my-posh.exe
+    `$ompExe = `$null
+    
+    # Method 1: Try Get-Command (if already in PATH)
+    try {
+        `$ompExe = Get-Command "oh-my-posh.exe" -ErrorAction Stop
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] Found oh-my-posh.exe via PATH: `$(`$ompExe.Source)"
+    } catch {
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] oh-my-posh.exe not in PATH, searching common locations"
+        
+        # Method 2: Search common installation directories
+        `$ompSearchPaths = @(
+            "`$env:ProgramFiles\oh-my-posh",
+            "`$env:ProgramFiles (x86)\oh-my-posh", 
+            "`$env:LOCALAPPDATA\Microsoft\WinGet\Packages",
+            "`$env:LOCALAPPDATA\Programs\oh-my-posh",
+            "`$env:USERPROFILE\scoop\apps\oh-my-posh\current",
+            "`$env:ProgramData\chocolatey\bin",
+            "`$env:USERPROFILE\.local\bin"
+        )
+        
+        foreach (`$path in `$ompSearchPaths) {
+            if (Test-Path `$path) {
+                `$found = Get-ChildItem -Path `$path -Recurse -Filter "oh-my-posh.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if (`$found) {
+                    `$ompExe = `$found
+                    Add-Content -Path `$logFile -Value "[`$(Get-Date)] Found oh-my-posh.exe in: `$(`$found.FullName)"
+                    break
+                }
+            }
+        }
+    }
+    
+    if (-not `$ompExe) {
+        throw "Could not locate oh-my-posh.exe in PATH or common locations"
+    }
     
     # Use POSH_THEMES_PATH environment variable
     `$themesDir = `$env:POSH_THEMES_PATH
     
-    # Try to find a theme file
-    `$themePath = Join-Path -Path `$themesDir -ChildPath "jandedobbeleer.omp.json"
-    if (-not (Test-Path `$themePath)) {
-        # If default theme doesn't exist, try to find any available theme
-        `$availableThemes = Get-ChildItem -Path `$themesDir -Filter "*.omp.json" -ErrorAction SilentlyContinue
-        if (`$availableThemes) {
-            `$themePath = `$availableThemes[0].FullName
+    # Try to load user's saved theme preference first
+    `$preferenceFile = Join-Path `$ompBaseDir ".theme-preference"
+    `$themePath = `$null
+    
+    if (Test-Path `$preferenceFile) {
+        try {
+            `$savedTheme = Get-Content `$preferenceFile -Raw -ErrorAction Stop | ForEach-Object { `$_.Trim() }
+            if (-not [string]::IsNullOrEmpty(`$savedTheme)) {
+                # Try to find the saved theme
+                `$savedThemePath = Join-Path -Path `$themesDir -ChildPath "`$savedTheme.omp.json"
+                if (Test-Path `$savedThemePath) {
+                    `$themePath = `$savedThemePath
+                    Add-Content -Path `$logFile -Value "[`$(Get-Date)] Loading saved theme: `$savedTheme"
+                } else {
+                    Add-Content -Path `$logFile -Value "[`$(Get-Date)] Saved theme not found: `$savedTheme, falling back to default"
+                }
+            }
+        } catch {
+            Add-Content -Path `$logFile -Value "[`$(Get-Date)] Error reading theme preference: `$(`$_.Exception.Message)"
+        }
+    }
+    
+    # If no saved preference or saved theme not found, use default
+    if (-not `$themePath) {
+        `$themePath = Join-Path -Path `$themesDir -ChildPath "jandedobbeleer.omp.json"
+        if (-not (Test-Path `$themePath)) {
+            # If default theme doesn't exist, try to find any available theme
+            `$availableThemes = Get-ChildItem -Path `$themesDir -Filter "*.omp.json" -ErrorAction SilentlyContinue
+            if (`$availableThemes) {
+                `$themePath = `$availableThemes[0].FullName
+            }
         }
     }
     
     if (Test-Path `$themePath) {
         oh-my-posh init pwsh --config "`$themePath" | Invoke-Expression
+        `$themeName = (Get-Item `$themePath).BaseName
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] Theme loaded successfully: `$themeName"
     } else {
-        Write-Host "No themes found. Run Update-OMPThemes.ps1 to download themes." -ForegroundColor Yellow
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] No themes found, run Update-OMPThemes.ps1"
     }
 } catch {
-    Write-Host "Oh My Posh not available in PATH. Skipping prompt setup." -ForegroundColor Yellow
+    Add-Content -Path `$logFile -Value "[`$(Get-Date)] Oh My Posh initialization failed: `$(`$_.Exception.Message)"
 }
 
 function Set-OMPTheme {
     param([string]`$name)
     
+    # Handle special commands
+    if (`$name -eq "reset") {
+        `$preferenceFile = Join-Path `$ompBaseDir ".theme-preference"
+        if (Test-Path `$preferenceFile) {
+            Remove-Item `$preferenceFile -Force -ErrorAction SilentlyContinue
+            Add-Content -Path `$logFile -Value "[`$(Get-Date)] Theme preference reset"
+            
+            # Reload the profile to apply default theme immediately
+            try {
+                . `$PROFILE
+                Add-Content -Path `$logFile -Value "[`$(Get-Date)] Profile reloaded, default theme applied"
+            } catch {
+                Add-Content -Path `$logFile -Value "[`$(Get-Date)] Profile reload failed: `$(`$_.Exception.Message)"
+            }
+        } else {
+            Add-Content -Path `$logFile -Value "[`$(Get-Date)] No theme preference to reset"
+        }
+        return
+    }
+    
+    if (`$name -eq "current") {
+        `$preferenceFile = Join-Path `$ompBaseDir ".theme-preference"
+        if (Test-Path `$preferenceFile) {
+            try {
+                `$currentTheme = Get-Content `$preferenceFile -Raw -ErrorAction Stop | ForEach-Object { `$_.Trim() }
+                if (-not [string]::IsNullOrEmpty(`$currentTheme)) {
+                    Write-Host "Current theme: `$currentTheme" -ForegroundColor Green
+                    return
+                }
+            } catch {
+                Add-Content -Path `$logFile -Value "[`$(Get-Date)] Error reading current theme: `$(`$_.Exception.Message)"
+            }
+        }
+        Write-Host "No theme preference set. Using default theme." -ForegroundColor Gray
+        return
+    }
+    
     # Validate parameter
     if ([string]::IsNullOrEmpty(`$name)) {
-        Write-Host "Usage: Set-OMPTheme <theme-name> (or theme <theme-name>)" -ForegroundColor Yellow
-        Write-Host "Example: Set-OMPTheme jandedobbeleer" -ForegroundColor Gray
-        Write-Host "Available themes:" -ForegroundColor Yellow
+        Write-Host "Usage: theme <theme-name> | theme current | theme reset" -ForegroundColor Yellow
+        Write-Host "Examples:" -ForegroundColor Gray
+        Write-Host "  theme jandedobbeleer    - Switch to jandedobbeleer theme" -ForegroundColor Gray
+        Write-Host "  theme current           - Show current theme preference" -ForegroundColor Gray
+        Write-Host "  theme reset             - Reset to default theme" -ForegroundColor Gray
+        Write-Host "`nAvailable themes:" -ForegroundColor Yellow
         
         # Use POSH_THEMES_PATH environment variable
         `$themesDir = `$env:POSH_THEMES_PATH
@@ -343,12 +391,21 @@ function Set-OMPTheme {
     
     `$themePath = Join-Path `$themesDir `$name
     if (Test-Path `$themePath) {
+        # Apply the theme
         oh-my-posh init pwsh --config "`$themePath" | Invoke-Expression
+        
+        # Save user preference
+        `$preferenceFile = Join-Path `$ompBaseDir ".theme-preference"
         `$themeNameWithoutExt = `$name -replace '\.omp\.json$', ''
+        Set-Content -Path `$preferenceFile -Value `$themeNameWithoutExt -Encoding UTF8
+        
+        # Log successful theme switch
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] Theme switched to: `$themeNameWithoutExt"
         Write-Host "Theme switched to: `$themeNameWithoutExt" -ForegroundColor Green
     } else {
         # Show theme name without extension for cleaner error message
         `$themeNameWithoutExt = `$name -replace '\.omp\.json$', ''
+        Add-Content -Path `$logFile -Value "[`$(Get-Date)] Theme not found: `$themeNameWithoutExt"
         Write-Host "Theme not found: `$themeNameWithoutExt" -ForegroundColor Red
         Write-Host "Available themes:" -ForegroundColor Yellow
         if (Test-Path `$themesDir) {
@@ -357,13 +414,30 @@ function Set-OMPTheme {
                 Write-Host "  - `$cleanName" -ForegroundColor Gray 
             }
         } else {
+            Add-Content -Path `$logFile -Value "[`$(Get-Date)] Themes directory not found"
             Write-Host "  Themes directory not found. Run Update-OMPThemes.ps1 first." -ForegroundColor Red
         }
     }
 }
 
-# Set alias for theme switching
+
+
+# Function to show welcome message again
+function Show-OMPWelcome {
+    Write-Host "`nWelcome to PowerShell 7 Plus!" -ForegroundColor Cyan
+    Write-Host "Thank you for using our enhanced PowerShell environment!" -ForegroundColor Green
+    Write-Host "`nTheme Management Commands:" -ForegroundColor Yellow
+    Write-Host "  • theme <name>     - Switch to a theme (e.g., theme dracula)" -ForegroundColor Gray
+    Write-Host "  • theme current    - Show current theme preference" -ForegroundColor Gray
+    Write-Host "  • theme reset      - Reset to default theme" -ForegroundColor Gray
+    Write-Host "  • theme            - Show help and available themes" -ForegroundColor Gray
+    Write-Host "  • welcome         - Show this welcome message again" -ForegroundColor Gray
+    Write-Host "`nEnjoy your enhanced PowerShell experience!" -ForegroundColor Magenta
+}
+
+# Set aliases for theme management
 Set-Alias -Name theme -Value Set-OMPTheme -Scope Global -ErrorAction SilentlyContinue
+Set-Alias -Name welcome -Value Show-OMPWelcome -Scope Global -ErrorAction SilentlyContinue
 # END: Oh My Posh init block
 "@
 
@@ -443,10 +517,10 @@ catch {
     Write-Host "PATH manually refreshed." -ForegroundColor Green
 }
 
-# Step 13: Reload profile
-Write-Host "`nStep 13: Reload PowerShell profile" -ForegroundColor Cyan
-. $PROFILE
-Write-Host "PowerShell profile reloaded." -ForegroundColor Green
+# # Step 13: Reload profile
+# Write-Host "`nStep 13: Reload PowerShell profile" -ForegroundColor Cyan
+# . $PROFILE
+# Write-Host "PowerShell profile reloaded." -ForegroundColor Green
 
 # Step 14: Restart terminal
 Write-Host "`nStep 14: Restart terminal" -ForegroundColor Cyan
