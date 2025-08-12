@@ -55,7 +55,6 @@ The script will:
 - ✅ Install Oh My Posh via winget
 - ✅ Configure your PowerShell profile
 - ✅ Set up theme management
-- ✅ Install PowerShell 7 (user can set default profile manually)
 - ✅ Launch your new environment
 
 ## What You Get
